@@ -1,0 +1,47 @@
+package ir.dekot.eshterakyar
+
+import android.graphics.Color
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.core.view.WindowCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import ir.dekot.eshterakyar.core.navigation.EshterakYarApp
+import ir.dekot.eshterakyar.core.themePreferences.ThemeViewModel
+import ir.dekot.eshterakyar.core.theme.EshterakYarTheme
+import ir.dekot.eshterakyar.core.utils.LocalTheme
+import ir.dekot.eshterakyar.core.utils.darkThemeColor
+import ir.dekot.eshterakyar.core.utils.lightThemeColor
+
+
+class MainActivity : ComponentActivity() {
+    @Suppress("DEPRECATION")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        // Status bar رو transparent کن
+        window.statusBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.TRANSPARENT
+
+
+
+        setContent {
+            val viewModel: ThemeViewModel = viewModel()
+            val isDark by viewModel.isDarkTheme.collectAsStateWithLifecycle()
+            val themeColors = if(isDark) darkThemeColor else lightThemeColor
+            // Status bar icons رو dark کن
+            WindowCompat.getInsetsController(window, window.decorView).apply {
+                isAppearanceLightStatusBars = isDark
+            }
+            CompositionLocalProvider(LocalTheme provides themeColors){
+                EshterakYarTheme(darkTheme = isDark) {
+                    EshterakYarApp()
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,330 @@
+package ir.dekot.eshterakyar.core.navigation
+
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntOffset
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+
+@Composable
+fun AnimatedNavigationBar(
+    navController: NavController,
+    modifier: Modifier = Modifier,
+    barColor: Color,
+    circleColor: Color,
+    selectedColor: Color ,
+    unselectedColor: Color,
+) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    // Convert your screens to ButtonData format
+    val buttons = remember {
+        Screens.screenList.map { screen ->
+            ButtonData(icon = screen.icon)
+//            text = screen.title,
+        }
+    }
+
+    val circleRadius = 28.dp
+    val selectedItem = Screens.screenList.indexOfFirst { it.route == currentRoute }.let {
+        if (it == -1) 0 else it
+    }
+
+    var barSize by remember { mutableStateOf(IntSize(0, 0)) }
+
+    // First item's center offset for Arrangement.SpaceAround
+    val offsetStep = remember(barSize) {
+        barSize.width.toFloat() / (buttons.size * 2)
+    }
+
+    val offset = remember(selectedItem, offsetStep) {
+        offsetStep + selectedItem * 2 * offsetStep
+    }
+
+    val circleRadiusPx = LocalDensity.current.run { circleRadius.toPx().toInt() }
+    val offsetTransition = updateTransition(offset, "offset transition")
+    val animation = spring<Float>(dampingRatio = 0.7f, stiffness = Spring.StiffnessVeryLow)
+
+    val cutoutOffset by offsetTransition.animateFloat(
+        transitionSpec = {
+            if (this.initialState == 0f) {
+                snap()
+            } else {
+                animation
+            }
+        },
+        label = "cutout offset"
+    ) { it }
+
+    val adjustmentPx = LocalDensity.current.run { 25.dp.toPx().toInt() }
+
+    val circleOffset by offsetTransition.animateIntOffset(
+        transitionSpec = {
+            if (this.initialState == 0f) {
+                snap()
+            } else {
+                spring(animation.dampingRatio, animation.stiffness)
+            }
+        },
+        label = "circle offset"
+    ) {
+        IntOffset(it.toInt() - circleRadiusPx, -circleRadiusPx+adjustmentPx)
+    }
+
+    val barShape = remember(cutoutOffset) {
+        BarShape(
+            offset = cutoutOffset,
+            circleRadius = circleRadius,
+            cornerRadius = 25.dp,
+        )
+    }
+
+    Box(modifier = modifier) {
+        Circle(
+            modifier = Modifier
+                .offset { circleOffset }
+                .zIndex(1f)
+                ,
+            color = circleColor,
+            radius = circleRadius,
+            button = buttons[selectedItem],
+            iconColor = selectedColor,
+        )
+
+        Row(
+            modifier = Modifier
+                .onPlaced { barSize = it.size }
+                .graphicsLayer {
+                    shape = barShape
+                    clip = true
+                    alpha = 0.99f // لازم برای شفافیت با hardware acceleration
+                }
+                .fillMaxWidth()
+                .drawWithContent {
+                    // کل پیکسل‌های شکل رو رنگ کن ولی سوراخ رو کاملاً خالی بذار
+                    val outline = barShape.createOutline(size, layoutDirection, this)
+                    if (outline is Outline.Generic) {
+                        drawPath(outline.path, barColor)
+
+                    }
+                    drawContent()
+                },
+            horizontalArrangement = Arrangement.SpaceAround,
+        ) {
+            buttons.forEachIndexed { index, button ->
+                val screen = Screens.screenList[index]
+                val isSelected = currentRoute == screen.route
+
+                NavigationBarItem(
+                    selected = isSelected,
+                    onClick = {
+                        navController.navigate(screen.route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    icon = {
+                        val iconAlpha by animateFloatAsState(
+                            targetValue = if (isSelected) 0f else 1f,
+                            label = "Navbar item icon"
+                        )
+                        button.icon
+                        Icon(
+                            painter = painterResource(id = button.icon) ,
+                            contentDescription = "",
+                            modifier = Modifier.alpha(iconAlpha).size(31.dp)
+                        )
+                    },
+//                    label = { Text(button.text) },
+                    colors = NavigationBarItemDefaults.colors().copy(
+                        selectedIconColor = selectedColor,
+                        selectedTextColor = selectedColor,
+                        unselectedIconColor = unselectedColor,
+                        unselectedTextColor = unselectedColor,
+                        selectedIndicatorColor = Color.Transparent,
+                    ),
+                    interactionSource = remember { NoRippleInteractionSource() }
+                )
+            }
+        }
+    }
+}
+
+// ButtonData class (اگه قبلاً نداری اضافه کن)
+data class ButtonData(val icon: Int)
+//val text: String,
+// BarShape class (همون کد قبلی)
+private class BarShape(
+    private val offset: Float,
+    private val circleRadius: Dp,
+    private val cornerRadius: Dp,
+    private val circleGap: Dp = 38.dp,
+) : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density
+    ): Outline {
+        return Outline.Generic(getPath(size, density))
+    }
+
+    private fun getPath(size: Size, density: Density): Path {
+        val cutoutCenterX = offset
+        val cutoutRadius = density.run { (circleRadius + circleGap).toPx() }
+        val cornerRadiusPx = density.run { cornerRadius.toPx() }
+        val cornerDiameter = cornerRadiusPx * 2
+        return Path().apply {
+            val cutoutEdgeOffset = cutoutRadius * 1.2f
+            val cutoutLeftX = cutoutCenterX - cutoutEdgeOffset
+            val cutoutRightX = cutoutCenterX + cutoutEdgeOffset
+
+            // bottom left
+            moveTo(x = 0F, y = size.height)
+            // top left
+            if (cutoutLeftX > 0) {
+                val realLeftCornerDiameter = if (cutoutLeftX >= cornerRadiusPx) {
+                    cornerDiameter
+                } else {
+                    cutoutLeftX * 2
+                }
+                arcTo(
+                    rect = Rect(
+                        left = 0f,
+                        top = 0f,
+                        right = realLeftCornerDiameter,
+                        bottom = realLeftCornerDiameter
+                    ),
+                    startAngleDegrees = 180.0f,
+                    sweepAngleDegrees = 90.0f,
+                    forceMoveTo = false
+                )
+            }
+            lineTo(cutoutLeftX, 0f)
+            // cutout
+            cubicTo(
+                x1 = cutoutCenterX - cutoutRadius*0.7f,
+                y1 = 0f,
+                x2 = cutoutCenterX - cutoutRadius*0.7f,
+                y2 = cutoutRadius,
+                x3 = cutoutCenterX,
+                y3 = cutoutRadius,
+            )
+            cubicTo(
+                x1 = cutoutCenterX + cutoutRadius*0.7f,
+                y1 = cutoutRadius,
+                x2 = cutoutCenterX + cutoutRadius*0.7f,
+                y2 = 0f,
+                x3 = cutoutRightX,
+                y3 = 0f,
+            )
+            // top right
+            if (cutoutRightX < size.width) {
+                val realRightCornerDiameter = if (cutoutRightX <= size.width - cornerRadiusPx) {
+                    cornerDiameter
+                } else {
+                    (size.width - cutoutRightX) * 2
+                }
+                arcTo(
+                    rect = Rect(
+                        left = size.width - realRightCornerDiameter,
+                        top = 0f,
+                        right = size.width,
+                        bottom = realRightCornerDiameter
+                    ),
+                    startAngleDegrees = -90.0f,
+                    sweepAngleDegrees = 90.0f,
+                    forceMoveTo = false
+                )
+            }
+            // bottom right
+            lineTo(x = size.width, y = size.height)
+            close()
+        }
+    }
+}
+
+// Circle composable (همون کد قبلی)
+@Composable
+private fun Circle(
+    modifier: Modifier = Modifier,
+    color: Color = Color.White,
+    radius: Dp,
+    button: ButtonData,
+    iconColor: Color,
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .size(radius * 2)
+            .clip(CircleShape)
+            .background(color)
+        ,
+    ) {
+        AnimatedContent(
+            targetState = button.icon,
+            label = "Bottom bar circle icon",
+        ) { targetIcon ->
+            Icon(painter = painterResource(targetIcon), "", tint = iconColor,modifier = Modifier.size(33.dp) )// سایز آیکن دایره رو هم تنظیم کن)
+        }
+    }
+}
+
+class NoRippleInteractionSource : MutableInteractionSource {
+    override val interactions: Flow<Interaction> = emptyFlow()
+    override suspend fun emit(interaction: Interaction) {}
+    override fun tryEmit(interaction: Interaction) = true
+}
