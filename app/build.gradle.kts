@@ -90,6 +90,8 @@ dependencies {
 
     // Koin
     implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
 
     // Test
     testImplementation(libs.junit)
@@ -99,9 +101,16 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    //Coil
-    implementation("io.coil-kt:coil-compose:2.6.0")
+//    //Coil
+//    implementation(libs.coil.compose)
 
     //CustomShape
     implementation(libs.squircleShape)
+
+    //Navigation 3
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+//    implementation(libs.androidx.material3.adaptive.navigation3)
+    implementation(libs.kotlinx.serialization.core)
 }

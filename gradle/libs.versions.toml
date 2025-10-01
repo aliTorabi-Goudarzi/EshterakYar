@@ -6,9 +6,9 @@ junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 kotlinxCoroutines = "1.10.2"
-lifecycle = "2.9.2"
+lifecycle = "2.9.3"
 activityCompose = "1.10.1"
-composeBom = "2025.07.00"
+composeBom = "2025.08.01"
 navigationCompose = "2.9.0"
 room = "2.7.2"
 ksp = "2.2.20-2.0.3"
@@ -18,11 +18,12 @@ koin-bom = "4.1.1"
 composeUiTestJunit4 = "1.9.1"
 dataStore="1.1.7"
 squircleShape = "4.0.0"
-nav3Core = "1.0.0-alpha01"
+nav3Core = "1.0.0-alpha03"
 lifecycleViewmodelNav3 = "1.0.0-alpha01"
-kotlinSerialization = "2.1.21"
+#kotlinSerialization = "2.1.21"
 kotlinxSerializationCore = "1.9.0"
-material3AdaptiveNav3 = "1.0.0-SNAPSHOT"
+#material3AdaptiveNav3 = "1.2.0-beta02"
+coil = "2.7.0"
 
 [libraries]
 # Core
@@ -65,6 +66,8 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 # Koin
 koin-bom = { group = "io.insert-koin", name = "koin-bom", version.ref = "koin-bom" }
 koin-core = { group = "io.insert-koin", name = "koin-core" }
+koin-android = { group = "io.insert-koin", name = "koin-android" }
+koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose" }
 
 # Test
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -79,17 +82,20 @@ datastore={group = "androidx.datastore",name="datastore",version.ref = "dataStor
 squircleShape = { group = "com.stoyanvuchev", name = "squircle-shape-android", version.ref = "squircleShape" }
 
 # Core Navigation 3 libraries
-androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
-androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
+androidx-navigation3-runtime = { group = "androidx.navigation3",name="navigation3-runtime", version.ref = "nav3Core" }
+androidx-navigation3-ui = { group = "androidx.navigation3",name="navigation3-ui", version.ref = "nav3Core" }
 
 # Optional add-on libraries
-androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
-kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerializationCore" }
+androidx-lifecycle-viewmodel-navigation3 = { group = "androidx.lifecycle",name="lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
+kotlinx-serialization-core = { group = "org.jetbrains.kotlinx",name = "kotlinx-serialization-core", version.ref = "kotlinxSerializationCore" }
 
 # Note: The Material3 adaptive layouts library for Navigation 3 is currently
 # only available in snapshot builds. Follow the instructions at androidx.dev to
 # add the snapshot builds repository to your project.
-androidx-material3-adaptive-navigation3 = { group = "androidx.compose.material3.adaptive", name = "adaptive-navigation3", version.ref = "material3AdaptiveNav3" }
+#androidx-material3-adaptive-navigation3 = { group = "androidx.compose.material3.adaptive", name = "adaptive-navigation3", version.ref = "material3AdaptiveNav3" }
+
+#Coil
+coil-compose = {group="io.coil-kt",name="coil-compose",version.ref = "coil"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -97,4 +103,3 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-

@@ -44,9 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -365,7 +363,7 @@ fun GreetingCard(
                 .align(Alignment.BottomCenter)
                 .offset(y = (-4).dp)
                 .size(20.dp),
-            tint = if (isSystemInDarkTheme()) Color.Black else Color.White
+            tint =  Color.White
         )
     }
 }

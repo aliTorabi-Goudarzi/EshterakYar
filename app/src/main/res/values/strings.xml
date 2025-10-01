@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">EshterakYar</string>
+    <string name="add_subscription">افزودن اشتراک</string>
+    <string name="days_left">%1$d روز مانده</string>
+    <string name="no_subscriptions_yet">هنوز اشتراکی اضافه نکرده‌اید</string>
+    <string name="add_new_subscription">افزودن اشتراک جدید</string>
+    <string name="category">دسته‌بندی</string>
+    <string name="subscription_name">نام اشتراک</string>
+    <string name="period">دوره</string>
+    <string name="start_date">تاریخ شروع</string>
+    <string name="pick_date">انتخاب تاریخ</string>
+    <string name="confirm">تأیید</string>
+    <string name="cancel">لغو</string>
+    <string name="end_date_label">تاریخ پایان: %1$s</string>
+    <string name="price_rial">قیمت (ریال)</string>
+    <string name="add_subscription_action">افزودن اشتراک</string>
+    <string name="error_fill_required_fields">لطفاً همه فیلدها را تکمیل کنید</string>
 </resources>

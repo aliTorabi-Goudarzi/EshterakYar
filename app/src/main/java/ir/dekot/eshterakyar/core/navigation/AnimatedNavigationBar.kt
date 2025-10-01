@@ -25,20 +25,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalDensity
@@ -50,33 +49,32 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation3.runtime.NavBackStack
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
 @Composable
 fun AnimatedNavigationBar(
-    navController: NavController,
+    backStack : NavBackStack,
     modifier: Modifier = Modifier,
     barColor: Color,
     circleColor: Color,
     selectedColor: Color ,
     unselectedColor: Color,
 ) {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    val bottomBarBackStack = backStack
+    var currentBottomBarScreen : BottomBarItem by rememberSaveable(stateSaver = BottomBarItem.bottomBarStateSaver){mutableStateOf(
+        BottomBarItem.Home)}
 
     // Convert your screens to ButtonData format
     val buttons = remember {
-        Screens.screenList.map { screen ->
+        bottomBarList.map { screen ->
             ButtonData(icon = screen.icon)
-//            text = screen.title,
         }
     }
 
     val circleRadius = 28.dp
-    val selectedItem = Screens.screenList.indexOfFirst { it.route == currentRoute }.let {
+    val selectedItem = bottomBarList.indexOfFirst { it == currentBottomBarScreen }.let {
         if (it == -1) 0 else it
     }
 
@@ -162,18 +160,18 @@ fun AnimatedNavigationBar(
             horizontalArrangement = Arrangement.SpaceAround,
         ) {
             buttons.forEachIndexed { index, button ->
-                val screen = Screens.screenList[index]
-                val isSelected = currentRoute == screen.route
+                val screen = bottomBarList[index]
+                val isSelected = currentBottomBarScreen == screen
 
                 NavigationBarItem(
-                    selected = isSelected,
+                    selected = currentBottomBarScreen == screen,
                     onClick = {
-                        navController.navigate(screen.route) {
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
+                        if(bottomBarBackStack.lastOrNull() != screen){
+                            if(bottomBarBackStack.lastOrNull() in bottomBarList){
+                                bottomBarBackStack.removeAt(bottomBarBackStack.lastIndex)
                             }
-                            launchSingleTop = true
-                            restoreState = true
+                            bottomBarBackStack.add(screen)
+                            currentBottomBarScreen = screen
                         }
                     },
                     icon = {
