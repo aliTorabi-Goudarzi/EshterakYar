@@ -31,6 +31,8 @@ fun RootGraph(padding : PaddingValues) {
         entryProvider = entryProvider {
             entry<Screens.NestedGraph> {
                 NestedGraph(
+                    navigateToSubscriptionDetail = {id ->backStack.add(Screens.SubscriptionDetail(id))},
+                    navigateToEditSubscription = {id -> backStack.add(Screens.EditSubscription(id))}
                 )
             }
             entry<Screens.SubscriptionDetail> { screen ->

@@ -10,61 +10,104 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
 import ir.dekot.eshterakyar.core.navigation.BottomBarItem
 import ir.dekot.eshterakyar.core.navigation.Screens
 import ir.dekot.eshterakyar.core.utils.LocalTheme
+import ir.dekot.eshterakyar.feature_home.presentation.components.CompactStatsCard
 import ir.dekot.eshterakyar.feature_home.presentation.components.GreetingCard
-import ir.dekot.eshterakyar.feature_home.presentation.components.StatsCard
 import ir.dekot.eshterakyar.feature_home.presentation.components.SubscriptionCard
 import ir.dekot.eshterakyar.feature_home.presentation.viewmodel.HomeViewModel
 import org.koin.androidx.compose.koinViewModel
+import kotlin.math.max
+import kotlin.math.min
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = koinViewModel(),backStack : NavBackStack) {
+fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), backStack: NavBackStack,
+               navigateToEditSubscription : (Long) -> Unit, navigateToSubscriptionDetail : (Long) -> Unit) {
     // توضیح: وضعیت باز/بسته بودن کارت خوش‌آمدگویی
     var isCardExpanded by remember { mutableStateOf(false) }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val theme = LocalTheme.current
+    
+    // Scroll state for tracking scroll position
+    val listState = rememberLazyListState()
+    
+    // Height of the collapsed GreetingCard and bottom bar
+    val collapsedCardHeight = 140.dp
+    val bottomBarHeight = 80.dp
+    val density = LocalDensity.current
+    val collapsedCardHeightPx = with(density) { collapsedCardHeight.toPx() }
+    val bottomBarHeightPx = with(density) { bottomBarHeight.toPx() }
+    
+    // Calculate the parallax offset based on scroll position
+    val topParallaxOffset = remember {
+        mutableStateOf(0f)
+    }
+    
+    // Calculate bottom parallax offset for content to scroll under bottom bar
+    val bottomParallaxOffset = remember {
+        mutableStateOf(0f)
+    }
+    
+    // Update parallax offsets when scrolling
+    LaunchedEffect(listState.firstVisibleItemScrollOffset) {
+        val scrollOffset = listState.firstVisibleItemScrollOffset.toFloat()
+        
+        // Create parallax effect for top: content moves up slower than scroll
+        topParallaxOffset.value = min(scrollOffset * 0.5f, collapsedCardHeightPx)
+        
+        // Create parallax effect for bottom: content can scroll under bottom bar after initial scroll
+        // Start allowing content to go under bottom bar after scrolling past the top card
+        bottomParallaxOffset.value = if (scrollOffset > collapsedCardHeightPx) {
+            min((scrollOffset - collapsedCardHeightPx) * 0.3f, bottomBarHeightPx)
+        } else {
+            0f
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start = 16.dp, end = 16.dp)
-        ) {
-            Spacer(modifier = Modifier.height(140.dp))
-        }
-
-        // GreetingCard که روی محتوا قرار می‌گیرد
+        // GreetingCard that stays fixed at the top
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.TopCenter)
+                .zIndex(9f)
         ) {
             GreetingCard(
                 modifier = Modifier.fillMaxWidth(),
                 onExpandedChange = { expanded -> isCardExpanded = expanded }
             )
         }
+        
+        // Main content with parallax effect
         Crossfade(
             targetState = uiState,
             animationSpec = tween(durationMillis = 300),
@@ -73,7 +116,12 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(),backStack : NavBackSta
             when {
                 state.isLoading -> {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .offset(
+                                y = with(density) { -topParallaxOffset.value.toDp() },
+                                x = 0.dp
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(
@@ -84,7 +132,12 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(),backStack : NavBackSta
 
                 state.error != null -> {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .offset(
+                                y = with(density) { -topParallaxOffset.value.toDp() },
+                                x = 0.dp
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(
@@ -117,7 +170,12 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(),backStack : NavBackSta
 
                 state.subscriptions.isEmpty() -> {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .offset(
+                                y = with(density) { -topParallaxOffset.value.toDp() },
+                                x = 0.dp
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(
@@ -154,15 +212,30 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(),backStack : NavBackSta
 
                 else -> {
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
+                        state = listState,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .offset(
+                                y = with(density) { -topParallaxOffset.value.toDp() },
+                                x = 0.dp
+                            ),
+                        contentPadding = PaddingValues(
+                            start = 16.dp,
+                            end = 16.dp,
+                            top = collapsedCardHeight + 16.dp,
+                            bottom = bottomBarHeight + 16.dp - with(density) { bottomParallaxOffset.value.toDp() }
+                        ),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // Stats card
+                        // Compact stats card
                         if (state.stats != null) {
                             item {
-                                StatsCard(
-                                    stats = state.stats,
+                                CompactStatsCard(
+                                    totalBudget = 500000.0, // 500,000 تومان
+                                    currentSpent = state.stats.totalMonthlyCost,
+                                    activeCount = state.stats.activeCount,
+                                    inactiveCount = state.inactiveCount,
+                                    nearingRenewalCount = state.nearingRenewalCount,
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             }
@@ -185,11 +258,11 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(),backStack : NavBackSta
                                 subscription = subscription,
                                 onClick = {
                                     // Navigate to subscription details
-                                    backStack.add(Screens.SubscriptionDetail(subscription.id))
+                                    navigateToSubscriptionDetail(subscription.id)
                                 },
                                 onEdit = {
+                                    navigateToEditSubscription(subscription.id)
                                     // Navigate to edit subscription
-                                    backStack.add(Screens.EditSubscription(subscription.id))
                                 },
                                 onDelete = {
                                     // Handle delete subscription
@@ -205,6 +278,5 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(),backStack : NavBackSta
                 }
             }
         }
-
     }
 }

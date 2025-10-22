@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import org.koin.androidx.compose.koinViewModel
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetActiveSubscriptionsUseCase
+import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetInactiveSubscriptionsUseCase
+import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetNearingRenewalSubscriptionsUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetSubscriptionStatsUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.SubscriptionStats
 import ir.dekot.eshterakyar.feature_home.domain.model.UserGreeting
@@ -17,6 +19,8 @@ import kotlinx.coroutines.launch
 class HomeViewModel(
     private val getActiveSubscriptionsUseCase: GetActiveSubscriptionsUseCase,
     private val getSubscriptionStatsUseCase: GetSubscriptionStatsUseCase,
+    private val getInactiveSubscriptionsUseCase: GetInactiveSubscriptionsUseCase,
+    private val getNearingRenewalSubscriptionsUseCase: GetNearingRenewalSubscriptionsUseCase,
     private val getUserGreetingUseCase: GetUserGreetingUseCase
 ) : ViewModel() {
 
@@ -27,6 +31,7 @@ class HomeViewModel(
         loadSubscriptions()
         loadStats()
         loadGreeting()
+        loadAdditionalStats()
     }
 
     private fun loadSubscriptions() {
@@ -77,10 +82,28 @@ class HomeViewModel(
         }
     }
 
+    private fun loadAdditionalStats() {
+        viewModelScope.launch {
+            try {
+                val inactiveCount = getInactiveSubscriptionsUseCase()
+                val nearingRenewalCount = getNearingRenewalSubscriptionsUseCase()
+                _uiState.value = _uiState.value.copy(
+                    inactiveCount = inactiveCount,
+                    nearingRenewalCount = nearingRenewalCount
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = e.message
+                )
+            }
+        }
+    }
+
     fun refreshData() {
         _uiState.value = _uiState.value.copy(isLoading = true)
         loadSubscriptions()
         loadStats()
+        loadAdditionalStats()
     }
 
     fun deleteSubscription(subscription: Subscription) {
@@ -118,6 +141,8 @@ data class HomeUiState(
     val subscriptions: List<Subscription> = emptyList(),
     val stats: SubscriptionStats? = null,
     val greeting: UserGreeting? = null,
+    val inactiveCount: Int = 0,
+    val nearingRenewalCount: Int = 0,
     val isLoading: Boolean = true,
     val error: String? = null
 )

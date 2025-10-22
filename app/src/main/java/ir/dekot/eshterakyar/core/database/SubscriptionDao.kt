@@ -57,4 +57,10 @@ interface SubscriptionDao {
     
     @Query("SELECT SUM(price * 12 / 365) FROM subscriptions WHERE isActive = 1 AND billingCycle = 'YEARLY'")
     suspend fun getYearlySubscriptionsMonthlyCost(): Double?
+    
+    @Query("SELECT COUNT(*) FROM subscriptions WHERE isActive = 0")
+    suspend fun getInactiveSubscriptionsCount(): Int
+    
+    @Query("SELECT COUNT(*) FROM subscriptions WHERE isActive = 1 AND nextRenewalDate <= :reminderDate")
+    suspend fun getNearingRenewalSubscriptionsCount(reminderDate: Long): Int
 }

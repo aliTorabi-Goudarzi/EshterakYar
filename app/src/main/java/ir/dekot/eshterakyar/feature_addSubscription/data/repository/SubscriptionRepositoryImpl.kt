@@ -78,4 +78,12 @@ class SubscriptionRepositoryImpl(
     override suspend fun getYearlySubscriptionsMonthlyCost(): Double? {
         return subscriptionDao.getYearlySubscriptionsMonthlyCost()
     }
+    
+    override suspend fun getInactiveSubscriptionsCount(): Int {
+        return subscriptionDao.getInactiveSubscriptionsCount()
+    }
+    
+    override suspend fun getNearingRenewalSubscriptionsCount(reminderDate: Long): Int {
+        return subscriptionDao.getNearingRenewalSubscriptionsCount(reminderDate)
+    }
 }

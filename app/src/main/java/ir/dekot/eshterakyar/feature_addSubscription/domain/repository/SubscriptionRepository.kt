@@ -55,4 +55,10 @@ interface SubscriptionRepository {
     
     // Get yearly subscriptions cost (converted to monthly)
     suspend fun getYearlySubscriptionsMonthlyCost(): Double?
+    
+    // Get count of inactive subscriptions
+    suspend fun getInactiveSubscriptionsCount(): Int
+    
+    // Get count of subscriptions nearing renewal
+    suspend fun getNearingRenewalSubscriptionsCount(reminderDate: Long): Int
 }
