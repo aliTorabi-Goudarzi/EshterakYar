@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.androidx.compose.koinViewModel
 
 // تعریف استیت‌های مختلف برای انیمیشن
 private enum class SwitchState2 {
@@ -147,7 +148,10 @@ fun SwitchPreview() {
 
 @Composable
 fun ThemeSwitch(modifier: Modifier = Modifier) {
-    val viewModel: ThemeViewModel = viewModel()
+    // DEBUG: Log to validate ViewModel instantiation issue
+    println("DEBUG: ThemeSwitch - Attempting to create ThemeViewModel")
+    val viewModel: ThemeViewModel = koinViewModel()
+    println("DEBUG: ThemeSwitch - ThemeViewModel created successfully")
     val isDark by viewModel.isDarkTheme.collectAsStateWithLifecycle()
 
     CustomAnimatedSwitch(

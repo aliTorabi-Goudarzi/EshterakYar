@@ -16,7 +16,7 @@ import ir.dekot.eshterakyar.core.theme.EshterakYarTheme
 import ir.dekot.eshterakyar.core.utils.LocalTheme
 import ir.dekot.eshterakyar.core.utils.darkThemeColor
 import ir.dekot.eshterakyar.core.utils.lightThemeColor
-
+import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
     @Suppress("DEPRECATION")
@@ -27,10 +27,8 @@ class MainActivity : ComponentActivity() {
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.TRANSPARENT
 
-
-
         setContent {
-            val viewModel: ThemeViewModel = viewModel()
+            val viewModel: ThemeViewModel = koinViewModel()
             val isDark by viewModel.isDarkTheme.collectAsStateWithLifecycle()
             val themeColors = if(isDark) darkThemeColor else lightThemeColor
             // Status bar icons رو dark کن

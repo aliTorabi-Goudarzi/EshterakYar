@@ -1,10 +1,123 @@
 package ir.dekot.eshterakyar.feature_home.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import org.koin.androidx.compose.koinViewModel
+import ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription
+import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetActiveSubscriptionsUseCase
+import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetSubscriptionStatsUseCase
+import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.SubscriptionStats
+import ir.dekot.eshterakyar.feature_home.domain.model.UserGreeting
+import ir.dekot.eshterakyar.feature_home.domain.usecase.GetUserGreetingUseCase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-/**
- * توضیح: ViewModel صفحه خانه بر اساس MVI
- */
 class HomeViewModel(
+    private val getActiveSubscriptionsUseCase: GetActiveSubscriptionsUseCase,
+    private val getSubscriptionStatsUseCase: GetSubscriptionStatsUseCase,
+    private val getUserGreetingUseCase: GetUserGreetingUseCase
 ) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(HomeUiState())
+    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+
+    init {
+        loadSubscriptions()
+        loadStats()
+        loadGreeting()
+    }
+
+    private fun loadSubscriptions() {
+        viewModelScope.launch {
+            try {
+                getActiveSubscriptionsUseCase().collect { subscriptions ->
+                    _uiState.value = _uiState.value.copy(
+                        subscriptions = subscriptions,
+                        isLoading = false
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message
+                )
+            }
+        }
+    }
+
+    private fun loadStats() {
+        viewModelScope.launch {
+            try {
+                val stats = getSubscriptionStatsUseCase()
+                _uiState.value = _uiState.value.copy(
+                    stats = stats
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = e.message
+                )
+            }
+        }
+    }
+
+    private fun loadGreeting() {
+        viewModelScope.launch {
+            try {
+                val greeting = getUserGreetingUseCase.execute("علی ترابی گودرزی")
+                _uiState.value = _uiState.value.copy(
+                    greeting = greeting
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = e.message
+                )
+            }
+        }
+    }
+
+    fun refreshData() {
+        _uiState.value = _uiState.value.copy(isLoading = true)
+        loadSubscriptions()
+        loadStats()
+    }
+
+    fun deleteSubscription(subscription: Subscription) {
+        // In a real implementation, this would call a delete use case
+        // For now, we'll just refresh the data
+        viewModelScope.launch {
+            try {
+                // TODO: Implement deleteSubscriptionUseCase
+                refreshData()
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = e.message
+                )
+            }
+        }
+    }
+
+    fun toggleSubscriptionStatus(subscription: Subscription) {
+        // In a real implementation, this would call a toggle status use case
+        // For now, we'll just refresh the data
+        viewModelScope.launch {
+            try {
+                // TODO: Implement toggleSubscriptionStatusUseCase
+                refreshData()
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = e.message
+                )
+            }
+        }
+    }
 }
+
+data class HomeUiState(
+    val subscriptions: List<Subscription> = emptyList(),
+    val stats: SubscriptionStats? = null,
+    val greeting: UserGreeting? = null,
+    val isLoading: Boolean = true,
+    val error: String? = null
+)

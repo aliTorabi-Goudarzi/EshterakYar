@@ -22,10 +22,14 @@ import ir.dekot.eshterakyar.feature_home.presentation.screen.HomeScreen
 import ir.dekot.eshterakyar.screens.AddSubscriptionScreen
 import ir.dekot.eshterakyar.screens.ProfileScreen
 import ir.dekot.eshterakyar.screens.ReportsScreen
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun NestedGraph(padding : PaddingValues) {
-    val viewModel: ThemeViewModel = viewModel()
+fun NestedGraph() {
+    // DEBUG: Log to validate ViewModel instantiation issue
+    println("DEBUG: NestedGraph - Attempting to create ThemeViewModel")
+    val viewModel: ThemeViewModel = koinViewModel()
+    println("DEBUG: NestedGraph - ThemeViewModel created successfully")
     val isDark by viewModel.isDarkTheme.collectAsStateWithLifecycle()
     val theme = LocalTheme.current
     val backStack = rememberNavBackStack<BottomBarItem>(BottomBarItem.Home)
@@ -36,9 +40,8 @@ fun NestedGraph(padding : PaddingValues) {
             entryDecorators = listOf(
                 rememberSavedStateNavEntryDecorator()
             ),
-            modifier = Modifier.padding(padding),
             entryProvider = entryProvider {
-                entry<BottomBarItem.Home> { HomeScreen() }
+                entry<BottomBarItem.Home> { HomeScreen(backStack = backStack) }
                 entry<BottomBarItem.AddSubscription> { AddSubscriptionScreen() }
                 entry<BottomBarItem.Reports> { ReportsScreen() }
                 entry<BottomBarItem.Profile> { ProfileScreen() }

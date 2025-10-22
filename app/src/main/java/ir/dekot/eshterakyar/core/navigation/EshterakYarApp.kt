@@ -1,6 +1,5 @@
 package ir.dekot.eshterakyar.core.navigation
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -11,14 +10,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import ir.dekot.eshterakyar.core.utils.LocalTheme
 
-@SuppressLint("SuspiciousIndentation")
 @Composable
 fun EshterakYarApp() {
     val theme = LocalTheme.current
+    
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background( theme.backgroundColor)
+            .background(theme.backgroundColor)
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),  // کل صفحه رو پر کن
@@ -26,7 +25,7 @@ fun EshterakYarApp() {
             containerColor = Color.Transparent,
             bottomBar = {}
         ) { innerPadding ->
-            NestedGraph(
+            RootGraph(
                 padding = innerPadding
             )
         }
