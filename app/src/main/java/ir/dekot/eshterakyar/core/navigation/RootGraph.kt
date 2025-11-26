@@ -1,52 +1,27 @@
 package ir.dekot.eshterakyar.core.navigation
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
-import androidx.navigation3.runtime.entry
-import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.rememberNavBackStack
-import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import ir.dekot.eshterakyar.feature_home.presentation.screen.SubscriptionDetailScreen
-import ir.dekot.eshterakyar.feature_home.presentation.screen.EditSubscriptionScreen
+import org.koin.compose.koinInject
+import org.koin.compose.navigation3.koinEntryProvider
+import org.koin.core.annotation.KoinExperimentalAPI
 
+@OptIn(KoinExperimentalAPI::class)
 @Composable
-fun RootGraph(padding : PaddingValues) {
-    val backStack = rememberNavBackStack<Screens>(Screens.NestedGraph)
+fun RootGraph(padding: PaddingValues) {
+    val entryProvider = koinEntryProvider()
+    val rootNavigator = koinInject<RootNavigator>()
 
     NavDisplay(
-        backStack = backStack,
-        onBack = { backStack.removeLastOrNull() },
+        backStack = rootNavigator.backStack,
+        onBack = { rootNavigator.goBack() },
         entryDecorators = listOf(
-            rememberSavedStateNavEntryDecorator(),
+            rememberSaveableStateHolderNavEntryDecorator(),
             rememberViewModelStoreNavEntryDecorator()
         ),
-        entryProvider = entryProvider {
-            entry<Screens.NestedGraph> {
-                NestedGraph(
-                    navigateToSubscriptionDetail = {id ->backStack.add(Screens.SubscriptionDetail(id))},
-                    navigateToEditSubscription = {id -> backStack.add(Screens.EditSubscription(id))}
-                )
-            }
-            entry<Screens.SubscriptionDetail> { screen ->
-                SubscriptionDetailScreen(
-                    subscriptionId = screen.subscriptionId,
-                    backStack = backStack
-                )
-            }
-            entry<Screens.EditSubscription> { screen ->
-                EditSubscriptionScreen(
-                    subscriptionId = screen.subscriptionId,
-                    backStack = backStack
-                )
-            }
-        }
+        entryProvider = entryProvider
     )
 }

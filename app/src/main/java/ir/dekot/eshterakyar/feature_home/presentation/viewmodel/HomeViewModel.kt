@@ -2,7 +2,10 @@ package ir.dekot.eshterakyar.feature_home.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import org.koin.androidx.compose.koinViewModel
+import ir.dekot.eshterakyar.core.navigation.BottomBarItem
+import ir.dekot.eshterakyar.core.navigation.NestedNavigator
+import ir.dekot.eshterakyar.core.navigation.RootNavigator
+import ir.dekot.eshterakyar.core.navigation.Screens
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetActiveSubscriptionsUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetInactiveSubscriptionsUseCase
@@ -21,8 +24,22 @@ class HomeViewModel(
     private val getSubscriptionStatsUseCase: GetSubscriptionStatsUseCase,
     private val getInactiveSubscriptionsUseCase: GetInactiveSubscriptionsUseCase,
     private val getNearingRenewalSubscriptionsUseCase: GetNearingRenewalSubscriptionsUseCase,
-    private val getUserGreetingUseCase: GetUserGreetingUseCase
+    private val getUserGreetingUseCase: GetUserGreetingUseCase,
+    private val nestedNavigator: NestedNavigator,
+    private val rootNavigator: RootNavigator
 ) : ViewModel() {
+
+    fun navigateToAddSubscription(){
+        nestedNavigator.navigateTo(destination = BottomBarItem.AddSubscription)
+    }
+
+    fun navigateToEditSubscription(id : Long){
+        rootNavigator.navigateTo(destination = Screens.EditSubscription(subscriptionId = id))
+    }
+
+    fun navigateToSubscriptionDetail(id : Long){
+        rootNavigator.navigateTo(destination = Screens.SubscriptionDetail(subscriptionId = id))
+    }
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()

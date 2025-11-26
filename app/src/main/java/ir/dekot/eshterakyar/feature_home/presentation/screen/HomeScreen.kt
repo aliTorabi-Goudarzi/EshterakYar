@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
@@ -23,35 +22,28 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation3.runtime.NavBackStack
-import ir.dekot.eshterakyar.core.navigation.BottomBarItem
-import ir.dekot.eshterakyar.core.navigation.Screens
 import ir.dekot.eshterakyar.core.utils.LocalTheme
 import ir.dekot.eshterakyar.feature_home.presentation.components.CompactStatsCard
 import ir.dekot.eshterakyar.feature_home.presentation.components.GreetingCard
 import ir.dekot.eshterakyar.feature_home.presentation.components.SubscriptionCard
 import ir.dekot.eshterakyar.feature_home.presentation.viewmodel.HomeViewModel
 import org.koin.androidx.compose.koinViewModel
-import kotlin.math.max
 import kotlin.math.min
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), backStack: NavBackStack,
-               navigateToEditSubscription : (Long) -> Unit, navigateToSubscriptionDetail : (Long) -> Unit) {
+fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
     // توضیح: وضعیت باز/بسته بودن کارت خوش‌آمدگویی
     var isCardExpanded by remember { mutableStateOf(false) }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -69,12 +61,12 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), backStack: NavBackSta
     
     // Calculate the parallax offset based on scroll position
     val topParallaxOffset = remember {
-        mutableStateOf(0f)
+        mutableFloatStateOf(0f)
     }
     
     // Calculate bottom parallax offset for content to scroll under bottom bar
     val bottomParallaxOffset = remember {
-        mutableStateOf(0f)
+        mutableFloatStateOf(0f)
     }
     
     // Update parallax offsets when scrolling
@@ -82,11 +74,11 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), backStack: NavBackSta
         val scrollOffset = listState.firstVisibleItemScrollOffset.toFloat()
         
         // Create parallax effect for top: content moves up slower than scroll
-        topParallaxOffset.value = min(scrollOffset * 0.5f, collapsedCardHeightPx)
+        topParallaxOffset.floatValue = min(scrollOffset * 0.5f, collapsedCardHeightPx)
         
         // Create parallax effect for bottom: content can scroll under bottom bar after initial scroll
         // Start allowing content to go under bottom bar after scrolling past the top card
-        bottomParallaxOffset.value = if (scrollOffset > collapsedCardHeightPx) {
+        bottomParallaxOffset.floatValue = if (scrollOffset > collapsedCardHeightPx) {
             min((scrollOffset - collapsedCardHeightPx) * 0.3f, bottomBarHeightPx)
         } else {
             0f
@@ -119,7 +111,7 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), backStack: NavBackSta
                         modifier = Modifier
                             .fillMaxSize()
                             .offset(
-                                y = with(density) { -topParallaxOffset.value.toDp() },
+                                y = with(density) { -topParallaxOffset.floatValue.toDp() },
                                 x = 0.dp
                             ),
                         contentAlignment = Alignment.Center
@@ -135,7 +127,7 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), backStack: NavBackSta
                         modifier = Modifier
                             .fillMaxSize()
                             .offset(
-                                y = with(density) { -topParallaxOffset.value.toDp() },
+                                y = with(density) { -topParallaxOffset.floatValue.toDp() },
                                 x = 0.dp
                             ),
                         contentAlignment = Alignment.Center
@@ -173,7 +165,7 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), backStack: NavBackSta
                         modifier = Modifier
                             .fillMaxSize()
                             .offset(
-                                y = with(density) { -topParallaxOffset.value.toDp() },
+                                y = with(density) { -topParallaxOffset.floatValue.toDp() },
                                 x = 0.dp
                             ),
                         contentAlignment = Alignment.Center
@@ -201,7 +193,7 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), backStack: NavBackSta
 
                             Button(
                                 onClick = {
-                                    backStack.add(BottomBarItem.AddSubscription)
+                                   viewModel.navigateToAddSubscription()
                                 }
                             ) {
                                 Text("افزودن اولین اشتراک")
@@ -216,14 +208,14 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), backStack: NavBackSta
                         modifier = Modifier
                             .fillMaxSize()
                             .offset(
-                                y = with(density) { -topParallaxOffset.value.toDp() },
+                                y = with(density) { -topParallaxOffset.floatValue.toDp() },
                                 x = 0.dp
                             ),
                         contentPadding = PaddingValues(
                             start = 16.dp,
                             end = 16.dp,
                             top = collapsedCardHeight + 16.dp,
-                            bottom = bottomBarHeight + 16.dp - with(density) { bottomParallaxOffset.value.toDp() }
+                            bottom = bottomBarHeight + 16.dp - with(density) { bottomParallaxOffset.floatValue.toDp() }
                         ),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
@@ -258,10 +250,10 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), backStack: NavBackSta
                                 subscription = subscription,
                                 onClick = {
                                     // Navigate to subscription details
-                                    navigateToSubscriptionDetail(subscription.id)
+                                    viewModel.navigateToSubscriptionDetail(subscription.id)
                                 },
                                 onEdit = {
-                                    navigateToEditSubscription(subscription.id)
+                                    viewModel.navigateToEditSubscription(subscription.id)
                                     // Navigate to edit subscription
                                 },
                                 onDelete = {

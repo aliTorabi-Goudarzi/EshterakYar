@@ -2,6 +2,7 @@ package ir.dekot.eshterakyar.feature_home.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ir.dekot.eshterakyar.core.navigation.RootNavigator
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.BillingCycle
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetSubscriptionByIdUseCase
@@ -15,9 +16,13 @@ import java.util.Date
 
 class EditSubscriptionViewModel(
     private val getSubscriptionByIdUseCase: GetSubscriptionByIdUseCase,
-    private val updateSubscriptionUseCase: UpdateSubscriptionUseCase
+    private val updateSubscriptionUseCase: UpdateSubscriptionUseCase,
+    private val rootNavigator: RootNavigator
 ) : ViewModel() {
 
+    fun goBack(){
+        rootNavigator.goBack()
+    }
     private val _uiState = MutableStateFlow(EditSubscriptionUiState())
     val uiState: StateFlow<EditSubscriptionUiState> = _uiState.asStateFlow()
 

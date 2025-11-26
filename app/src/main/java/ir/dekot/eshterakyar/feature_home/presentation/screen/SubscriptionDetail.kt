@@ -15,14 +15,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -45,25 +42,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.core.graphics.toColorInt
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation3.runtime.NavBackStack
-import ir.dekot.eshterakyar.core.navigation.Screens
 import ir.dekot.eshterakyar.core.utils.LocalTheme
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription
 import ir.dekot.eshterakyar.feature_home.presentation.viewmodel.SubscriptionDetailViewModel
 import org.koin.androidx.compose.koinViewModel
+import sv.lib.squircleshape.SquircleShape
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import androidx.core.graphics.toColorInt
-import sv.lib.squircleshape.SquircleShape
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubscriptionDetailScreen(
     subscriptionId: Long,
-    backStack: NavBackStack,
     viewModel: SubscriptionDetailViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -78,7 +71,7 @@ fun SubscriptionDetailScreen(
             TopAppBar(
                 title = { Text("جزئیات اشتراک") },
                 navigationIcon = {
-                    IconButton(onClick = { backStack.removeLastOrNull() }) {
+                    IconButton(onClick = { viewModel.goBack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "بازگشت")
                     }
                 },
@@ -96,7 +89,7 @@ fun SubscriptionDetailScreen(
                 ) {
                     FloatingActionButton(
                         onClick = {
-                            backStack.add(Screens.EditSubscription(subscriptionId))
+                            viewModel.navigateToEditSubscription(subscriptionId)
                         },
                         containerColor = theme.primary
                     ) {
@@ -106,7 +99,7 @@ fun SubscriptionDetailScreen(
                     FloatingActionButton(
                         onClick = {
                             viewModel.deleteSubscription(uiState.subscription!!)
-                            backStack.removeLastOrNull()
+                            viewModel.goBack()
                         },
                         containerColor = Color.Red
                     ) {

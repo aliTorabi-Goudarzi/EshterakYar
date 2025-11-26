@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
@@ -36,12 +35,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import ir.dekot.eshterakyar.R
+import androidx.core.graphics.toColorInt
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.SubscriptionCategory
 import sv.lib.squircleshape.CornerSmoothing
@@ -49,7 +46,6 @@ import sv.lib.squircleshape.SquircleShape
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import androidx.core.graphics.toColorInt
 
 @Composable
 fun SubscriptionCard(
@@ -61,15 +57,15 @@ fun SubscriptionCard(
     onToggleStatus: () -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
-    
+
     Card(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() },
         colors = CardDefaults.cardColors(
-            containerColor = if (subscription.isActive) 
-                MaterialTheme.colorScheme.surface 
-            else 
+            containerColor = if (subscription.isActive)
+                MaterialTheme.colorScheme.surface
+            else
                 MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
         ),
         elevation = CardDefaults.cardElevation(
@@ -114,9 +110,9 @@ fun SubscriptionCard(
                             modifier = Modifier.size(24.dp)
                         )
                     }
-                    
+
                     Spacer(modifier = Modifier.width(12.dp))
-                    
+
                     Column {
                         Text(
                             text = subscription.name,
@@ -125,7 +121,7 @@ fun SubscriptionCard(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-                        
+
                         Text(
                             text = subscription.category.persianName,
                             style = MaterialTheme.typography.bodySmall,
@@ -133,7 +129,7 @@ fun SubscriptionCard(
                         )
                     }
                 }
-                
+
                 // Menu button
                 Box {
                     IconButton(onClick = { expanded = true }) {
@@ -142,7 +138,7 @@ fun SubscriptionCard(
                             contentDescription = "Menu"
                         )
                     }
-                    
+
                     DropdownMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
@@ -171,9 +167,9 @@ fun SubscriptionCard(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             // Price and renewal info
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -187,14 +183,14 @@ fun SubscriptionCard(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
-                    
+
                     Text(
                         text = subscription.billingCycle.persianName,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                
+
                 Column(
                     horizontalAlignment = Alignment.End
                 ) {
@@ -203,7 +199,7 @@ fun SubscriptionCard(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    
+
                     Text(
                         text = formatDate(subscription.nextRenewalDate),
                         style = MaterialTheme.typography.bodyMedium,
@@ -211,10 +207,10 @@ fun SubscriptionCard(
                     )
                 }
             }
-            
+
             // Status indicator
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -222,12 +218,12 @@ fun SubscriptionCard(
             ) {
                 // Status indicator
                 val statusColor by animateColorAsState(
-                    targetValue = if (subscription.isActive) 
+                    targetValue = if (subscription.isActive)
                         Color(0xFF4CAF50) // Green
-                    else 
+                    else
                         Color(0xFF9E9E9E) // Gray
                 )
-                
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -237,16 +233,16 @@ fun SubscriptionCard(
                             .clip(CircleShape)
                             .background(statusColor)
                     )
-                    
+
                     Spacer(modifier = Modifier.width(6.dp))
-                    
+
                     Text(
                         text = if (subscription.isActive) "فعال" else "غیرفعال",
                         style = MaterialTheme.typography.bodySmall,
                         color = statusColor
                     )
                 }
-                
+
                 // Days until renewal
                 val daysUntilRenewal = calculateDaysUntilRenewal(subscription.nextRenewalDate)
                 val renewalColor = when {
@@ -254,7 +250,7 @@ fun SubscriptionCard(
                     daysUntilRenewal <= 7 -> Color(0xFFFF9800) // Orange
                     else -> MaterialTheme.colorScheme.onSurfaceVariant
                 }
-                
+
                 Text(
                     text = "$daysUntilRenewal روز دیگر",
                     style = MaterialTheme.typography.bodySmall,

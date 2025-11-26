@@ -60,7 +60,6 @@ import java.util.Locale
 @Composable
 fun EditSubscriptionScreen(
     subscriptionId: Long,
-    backStack: NavBackStack,
     viewModel: EditSubscriptionViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -75,7 +74,7 @@ fun EditSubscriptionScreen(
         if (!uiState.isSaving && uiState.error == null && !uiState.isLoading) {
             // If we're not saving, not loading, and no error, assume save was successful
             if (uiState.subscription != null) {
-                backStack.removeLastOrNull()
+                viewModel.goBack()
             }
         }
     }
@@ -85,7 +84,7 @@ fun EditSubscriptionScreen(
             TopAppBar(
                 title = { Text("ویرایش اشتراک") },
                 navigationIcon = {
-                    IconButton(onClick = { backStack.removeLastOrNull() }) {
+                    IconButton(onClick = {viewModel.goBack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "بازگشت")
                     }
                 },

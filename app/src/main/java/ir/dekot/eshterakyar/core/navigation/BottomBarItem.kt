@@ -14,7 +14,7 @@ val bottomBarList: List<BottomBarItem> = listOf(
 )
 
 @Serializable
-sealed class BottomBarItem(val icon : Int): NavKey{
+sealed class BottomBarItem(val icon : Int){
     @Serializable
     data object Home : BottomBarItem(
         icon = R.drawable.ic_dashboard

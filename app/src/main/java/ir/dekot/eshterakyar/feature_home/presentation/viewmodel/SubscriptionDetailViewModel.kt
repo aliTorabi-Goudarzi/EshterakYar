@@ -2,6 +2,8 @@ package ir.dekot.eshterakyar.feature_home.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ir.dekot.eshterakyar.core.navigation.RootNavigator
+import ir.dekot.eshterakyar.core.navigation.Screens
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.DeleteSubscriptionUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetSubscriptionByIdUseCase
@@ -13,9 +15,16 @@ import kotlinx.coroutines.launch
 
 class SubscriptionDetailViewModel(
     private val getSubscriptionByIdUseCase: GetSubscriptionByIdUseCase,
-    private val deleteSubscriptionUseCase: DeleteSubscriptionUseCase
+    private val deleteSubscriptionUseCase: DeleteSubscriptionUseCase,
+    private val rootNavigator: RootNavigator
 ) : ViewModel() {
 
+    fun navigateToEditSubscription(id : Long){
+        rootNavigator.navigateTo(destination = Screens.EditSubscription(subscriptionId = id))
+    }
+    fun goBack(){
+        rootNavigator.goBack()
+    }
     private val _uiState = MutableStateFlow(SubscriptionDetailUiState())
     val uiState: StateFlow<SubscriptionDetailUiState> = _uiState.asStateFlow()
 
@@ -50,9 +59,5 @@ class SubscriptionDetailViewModel(
                 )
             }
         }
-    }
-
-    fun clearError() {
-        _uiState.value = _uiState.value.copy(error = null)
     }
 }

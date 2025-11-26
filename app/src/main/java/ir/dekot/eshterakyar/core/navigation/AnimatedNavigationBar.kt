@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,22 +48,20 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.navigation3.runtime.NavBackStack
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
 @Composable
 fun AnimatedNavigationBar(
-    backStack : NavBackStack,
+    navigateTo: (BottomBarItem) -> Unit,
     modifier: Modifier = Modifier,
     barColor: Color,
     circleColor: Color,
-    selectedColor: Color ,
+    selectedColor: Color,
     unselectedColor: Color,
+    nestedNavigator: NestedNavigator
 ) {
-    val bottomBarBackStack = backStack
-    var currentBottomBarScreen : BottomBarItem by rememberSaveable(stateSaver = BottomBarItem.bottomBarStateSaver){mutableStateOf(
-        BottomBarItem.Home)}
+    val currentBottomBarScreen = nestedNavigator.currentDestination
 
     // Convert your screens to ButtonData format
     val buttons = remember {
@@ -166,14 +163,8 @@ fun AnimatedNavigationBar(
                 NavigationBarItem(
                     selected = currentBottomBarScreen == screen,
                     onClick = {
-                        if(bottomBarBackStack.lastOrNull() != screen){
-                            if(bottomBarBackStack.lastOrNull() in bottomBarList){
-                                bottomBarBackStack.removeAt(bottomBarBackStack.lastIndex)
-                            }
-                            bottomBarBackStack.add(screen)
-                            currentBottomBarScreen = screen
-                        }
-                    },
+                        navigateTo(screen)
+                        },
                     icon = {
                         val iconAlpha by animateFloatAsState(
                             targetValue = if (isSelected) 0f else 1f,
