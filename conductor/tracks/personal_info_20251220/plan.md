@@ -10,7 +10,7 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Data Layer & Domain Logic' (Protocol in workflow.md) [checkpoint: ab9d669]
 
 ## Phase 2: Presentation Logic (MVI)
-- [ ] Task: Define `PersonalInformationState`, `Intent`, and `Effect`.
+- [x] Task: Define `PersonalInformationState`, `Intent`, and `Effect`. 31f8f36
 - [ ] Task: Create `PersonalInformationViewModel`.
     - [ ] Subtask: Write Unit Tests for initial load and validation logic (TDD - Red).
     - [ ] Subtask: Implement ViewModel with MVI (Load User, Validate, Save).
