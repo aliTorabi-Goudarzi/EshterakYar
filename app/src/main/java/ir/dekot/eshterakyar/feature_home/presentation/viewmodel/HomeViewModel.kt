@@ -2,21 +2,19 @@ package ir.dekot.eshterakyar.feature_home.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import ir.dekot.eshterakyar.core.navigation.BottomBarItem
-import ir.dekot.eshterakyar.core.navigation.NestedNavigator
-import ir.dekot.eshterakyar.core.navigation.RootNavigator
-import ir.dekot.eshterakyar.core.navigation.Screens
-import ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetActiveSubscriptionsUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetInactiveSubscriptionsUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetNearingRenewalSubscriptionsUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetSubscriptionStatsUseCase
-import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.SubscriptionStats
-import ir.dekot.eshterakyar.feature_home.domain.model.UserGreeting
 import ir.dekot.eshterakyar.feature_home.domain.usecase.GetUserGreetingUseCase
+import ir.dekot.eshterakyar.feature_home.presentation.mvi.HomeEffect
+import ir.dekot.eshterakyar.feature_home.presentation.mvi.HomeIntent
+import ir.dekot.eshterakyar.feature_home.presentation.mvi.HomeState
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
@@ -24,31 +22,42 @@ class HomeViewModel(
     private val getSubscriptionStatsUseCase: GetSubscriptionStatsUseCase,
     private val getInactiveSubscriptionsUseCase: GetInactiveSubscriptionsUseCase,
     private val getNearingRenewalSubscriptionsUseCase: GetNearingRenewalSubscriptionsUseCase,
-    private val getUserGreetingUseCase: GetUserGreetingUseCase,
-    private val nestedNavigator: NestedNavigator,
-    private val rootNavigator: RootNavigator
+    private val getUserGreetingUseCase: GetUserGreetingUseCase
 ) : ViewModel() {
 
-    fun navigateToAddSubscription(){
-        nestedNavigator.navigateTo(destination = BottomBarItem.AddSubscription)
-    }
+    private val _uiState = MutableStateFlow(HomeState())
+    val uiState: StateFlow<HomeState> = _uiState.asStateFlow()
 
-    fun navigateToEditSubscription(id : Long){
-        rootNavigator.navigateTo(destination = Screens.EditSubscription(subscriptionId = id))
-    }
-
-    fun navigateToSubscriptionDetail(id : Long){
-        rootNavigator.navigateTo(destination = Screens.SubscriptionDetail(subscriptionId = id))
-    }
-
-    private val _uiState = MutableStateFlow(HomeUiState())
-    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+    private val _effect = Channel<HomeEffect>()
+    val effect = _effect.receiveAsFlow()
 
     init {
+        loadData()
+    }
+
+    fun onIntent(intent: HomeIntent) {
+        when (intent) {
+            HomeIntent.Refresh -> loadData()
+            HomeIntent.OnAddSubscriptionClicked -> sendEffect(HomeEffect.NavigateToAddSubscription)
+            is HomeIntent.OnSubscriptionClicked -> sendEffect(HomeEffect.NavigateToSubscriptionDetail(intent.id))
+            is HomeIntent.OnEditSubscriptionClicked -> sendEffect(HomeEffect.NavigateToEditSubscription(intent.id))
+            is HomeIntent.OnDeleteSubscription -> deleteSubscription(intent)
+            is HomeIntent.OnToggleSubscriptionStatus -> toggleSubscriptionStatus(intent)
+        }
+    }
+
+    private fun loadData() {
+        _uiState.value = _uiState.value.copy(isLoading = true)
         loadSubscriptions()
         loadStats()
         loadGreeting()
         loadAdditionalStats()
+    }
+
+    private fun sendEffect(effect: HomeEffect) {
+        viewModelScope.launch {
+            _effect.send(effect)
+        }
     }
 
     private fun loadSubscriptions() {
@@ -116,50 +125,13 @@ class HomeViewModel(
         }
     }
 
-    fun refreshData() {
-        _uiState.value = _uiState.value.copy(isLoading = true)
-        loadSubscriptions()
-        loadStats()
-        loadAdditionalStats()
+    private fun deleteSubscription(intent: HomeIntent.OnDeleteSubscription) {
+        // Placeholder for delete logic
+        loadData()
     }
 
-    fun deleteSubscription(subscription: Subscription) {
-        // In a real implementation, this would call a delete use case
-        // For now, we'll just refresh the data
-        viewModelScope.launch {
-            try {
-                // TODO: Implement deleteSubscriptionUseCase
-                refreshData()
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    error = e.message
-                )
-            }
-        }
-    }
-
-    fun toggleSubscriptionStatus(subscription: Subscription) {
-        // In a real implementation, this would call a toggle status use case
-        // For now, we'll just refresh the data
-        viewModelScope.launch {
-            try {
-                // TODO: Implement toggleSubscriptionStatusUseCase
-                refreshData()
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    error = e.message
-                )
-            }
-        }
+    private fun toggleSubscriptionStatus(intent: HomeIntent.OnToggleSubscriptionStatus) {
+        // Placeholder for toggle logic
+        loadData()
     }
 }
-
-data class HomeUiState(
-    val subscriptions: List<Subscription> = emptyList(),
-    val stats: SubscriptionStats? = null,
-    val greeting: UserGreeting? = null,
-    val inactiveCount: Int = 0,
-    val nearingRenewalCount: Int = 0,
-    val isLoading: Boolean = true,
-    val error: String? = null
-)

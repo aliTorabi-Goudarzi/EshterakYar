@@ -38,6 +38,7 @@ import ir.dekot.eshterakyar.core.utils.LocalTheme
 import ir.dekot.eshterakyar.feature_home.presentation.components.CompactStatsCard
 import ir.dekot.eshterakyar.feature_home.presentation.components.GreetingCard
 import ir.dekot.eshterakyar.feature_home.presentation.components.SubscriptionCard
+import ir.dekot.eshterakyar.feature_home.presentation.mvi.HomeIntent
 import ir.dekot.eshterakyar.feature_home.presentation.viewmodel.HomeViewModel
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.min
@@ -152,7 +153,7 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Button(
-                                onClick = { viewModel.refreshData() }
+                                onClick = { viewModel.onIntent(HomeIntent.Refresh) }
                             ) {
                                 Text("تلاش مجدد")
                             }
@@ -193,7 +194,7 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
 
                             Button(
                                 onClick = {
-                                   viewModel.navigateToAddSubscription()
+                                   viewModel.onIntent(HomeIntent.OnAddSubscriptionClicked)
                                 }
                             ) {
                                 Text("افزودن اولین اشتراک")
@@ -249,20 +250,16 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
                             SubscriptionCard(
                                 subscription = subscription,
                                 onClick = {
-                                    // Navigate to subscription details
-                                    viewModel.navigateToSubscriptionDetail(subscription.id)
+                                    viewModel.onIntent(HomeIntent.OnSubscriptionClicked(subscription.id))
                                 },
                                 onEdit = {
-                                    viewModel.navigateToEditSubscription(subscription.id)
-                                    // Navigate to edit subscription
+                                    viewModel.onIntent(HomeIntent.OnEditSubscriptionClicked(subscription.id))
                                 },
                                 onDelete = {
-                                    // Handle delete subscription
-                                    viewModel.deleteSubscription(subscription)
+                                    viewModel.onIntent(HomeIntent.OnDeleteSubscription(subscription))
                                 },
                                 onToggleStatus = {
-                                    // Handle toggle subscription status
-                                    viewModel.toggleSubscriptionStatus(subscription)
+                                    viewModel.onIntent(HomeIntent.OnToggleSubscriptionStatus(subscription))
                                 }
                             )
                         }

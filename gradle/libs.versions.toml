@@ -21,6 +21,8 @@ squircleShape = "4.0.0"
 navigation3 = "1.0.0"
 lifecycleViewmodelNav3 = "2.10.0"
 coil = "2.7.0"
+mockk = "1.13.13"
+turbine = "1.2.0"
 
 [libraries]
 # Core
@@ -71,6 +73,9 @@ koin-compose-navigation3 = {group = "io.insert-koin",name = "koin-compose-naviga
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 
 #DataStore
 datastore-preferences={group = "androidx.datastore",name = "datastore-preferences",version.ref = "dataStore"}
