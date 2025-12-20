@@ -13,7 +13,7 @@
 - [x] Task: Refactor `HomeScreen` to Stateless/Stateful Pattern. 8a998a6
     - [ ] Subtask: Extract logic to `HomeRoute` (Stateful).
     - [ ] Subtask: Ensure `HomeScreen` is pure UI (Stateless).
-- [ ] Task: Integrate Navigation 3.
+- [x] Task: Integrate Navigation 3. 8a998a6
     - [ ] Subtask: Define `HomeDestination` serializable object.
     - [ ] Subtask: Update `RootGraph` / `NavDisplay` to include Home with `koinEntryProvider`.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Navigation 3 & UI Integration' (Protocol in workflow.md)
