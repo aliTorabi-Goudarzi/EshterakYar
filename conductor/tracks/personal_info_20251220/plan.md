@@ -7,7 +7,7 @@
     - [ ] Subtask: Write Unit Tests (TDD - Red).
     - [ ] Subtask: Implement `UpdateUserUseCase`.
     - [ ] Subtask: Refactor (TDD - Green).
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Data Layer & Domain Logic' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Data Layer & Domain Logic' (Protocol in workflow.md) [checkpoint: ab9d669]
 
 ## Phase 2: Presentation Logic (MVI)
 - [ ] Task: Define `PersonalInformationState`, `Intent`, and `Effect`.
