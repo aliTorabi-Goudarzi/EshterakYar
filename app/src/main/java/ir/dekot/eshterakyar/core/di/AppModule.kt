@@ -1,6 +1,7 @@
 package ir.dekot.eshterakyar.core.di
 
 import ir.dekot.eshterakyar.core.database.GetUserUseCase
+import ir.dekot.eshterakyar.core.domain.usecase.UpdateUserUseCase
 import ir.dekot.eshterakyar.core.themePreferences.ThemeViewModel
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.DeleteSubscriptionUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetActiveSubscriptionsUseCase
@@ -49,4 +50,5 @@ val appModule = module {
 
     // User related
     singleOf(constructor = ::GetUserUseCase)
+    singleOf(constructor = ::UpdateUserUseCase)
 }
