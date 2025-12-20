@@ -16,7 +16,7 @@
 - [x] Task: Integrate Navigation 3. 8a998a6
     - [ ] Subtask: Define `HomeDestination` serializable object.
     - [ ] Subtask: Update `RootGraph` / `NavDisplay` to include Home with `koinEntryProvider`.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Navigation 3 & UI Integration' (Protocol in workflow.md)
+- [ ] Task: Conductor - User Manual Verification 'Phase 2: Navigation 3 & UI Integration' (Protocol in workflow.md) [checkpoint: 6c0a3fb]
 
 ## Phase 3: Final Verification & Cleanup
 - [ ] Task: Verify Navigation Flow and State.
