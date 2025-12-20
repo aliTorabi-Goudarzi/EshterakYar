@@ -10,7 +10,7 @@
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: MVI & ViewModel Refactoring' (Protocol in workflow.md) [checkpoint: b1835cb]
 
 ## Phase 2: Navigation 3 & UI Integration
-- [ ] Task: Refactor `HomeScreen` to Stateless/Stateful Pattern.
+- [x] Task: Refactor `HomeScreen` to Stateless/Stateful Pattern. 8a998a6
     - [ ] Subtask: Extract logic to `HomeRoute` (Stateful).
     - [ ] Subtask: Ensure `HomeScreen` is pure UI (Stateless).
 - [ ] Task: Integrate Navigation 3.
