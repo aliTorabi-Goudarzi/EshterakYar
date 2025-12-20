@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -38,16 +39,48 @@ import ir.dekot.eshterakyar.core.utils.LocalTheme
 import ir.dekot.eshterakyar.feature_home.presentation.components.CompactStatsCard
 import ir.dekot.eshterakyar.feature_home.presentation.components.GreetingCard
 import ir.dekot.eshterakyar.feature_home.presentation.components.SubscriptionCard
+import ir.dekot.eshterakyar.feature_home.presentation.mvi.HomeEffect
 import ir.dekot.eshterakyar.feature_home.presentation.mvi.HomeIntent
+import ir.dekot.eshterakyar.feature_home.presentation.mvi.HomeState
 import ir.dekot.eshterakyar.feature_home.presentation.viewmodel.HomeViewModel
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.min
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
+fun HomeRoute(
+    viewModel: HomeViewModel = koinViewModel(),
+    onNavigateToAddSubscription: () -> Unit,
+    onNavigateToDetail: (Long) -> Unit,
+    onNavigateToEdit: (Long) -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(viewModel.effect) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                HomeEffect.NavigateToAddSubscription -> onNavigateToAddSubscription()
+                is HomeEffect.NavigateToEditSubscription -> onNavigateToEdit(effect.id)
+                is HomeEffect.NavigateToSubscriptionDetail -> onNavigateToDetail(effect.id)
+                is HomeEffect.ShowMessage -> {
+                    // TODO: Show Snackbar
+                }
+            }
+        }
+    }
+
+    HomeScreen(
+        uiState = uiState,
+        onIntent = viewModel::onIntent
+    )
+}
+
+@Composable
+fun HomeScreen(
+    uiState: HomeState,
+    onIntent: (HomeIntent) -> Unit
+) {
     // توضیح: وضعیت باز/بسته بودن کارت خوش‌آمدگویی
     var isCardExpanded by remember { mutableStateOf(false) }
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val theme = LocalTheme.current
     
     // Scroll state for tracking scroll position
@@ -153,7 +186,7 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Button(
-                                onClick = { viewModel.onIntent(HomeIntent.Refresh) }
+                                onClick = { onIntent(HomeIntent.Refresh) }
                             ) {
                                 Text("تلاش مجدد")
                             }
@@ -194,7 +227,7 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
 
                             Button(
                                 onClick = {
-                                   viewModel.onIntent(HomeIntent.OnAddSubscriptionClicked)
+                                   onIntent(HomeIntent.OnAddSubscriptionClicked)
                                 }
                             ) {
                                 Text("افزودن اولین اشتراک")
@@ -250,16 +283,16 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
                             SubscriptionCard(
                                 subscription = subscription,
                                 onClick = {
-                                    viewModel.onIntent(HomeIntent.OnSubscriptionClicked(subscription.id))
+                                    onIntent(HomeIntent.OnSubscriptionClicked(subscription.id))
                                 },
                                 onEdit = {
-                                    viewModel.onIntent(HomeIntent.OnEditSubscriptionClicked(subscription.id))
+                                    onIntent(HomeIntent.OnEditSubscriptionClicked(subscription.id))
                                 },
                                 onDelete = {
-                                    viewModel.onIntent(HomeIntent.OnDeleteSubscription(subscription))
+                                    onIntent(HomeIntent.OnDeleteSubscription(subscription))
                                 },
                                 onToggleStatus = {
-                                    viewModel.onIntent(HomeIntent.OnToggleSubscriptionStatus(subscription))
+                                    onIntent(HomeIntent.OnToggleSubscriptionStatus(subscription))
                                 }
                             )
                         }
@@ -268,4 +301,14 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenPreview() {
+    // Mock state for preview
+    HomeScreen(
+        uiState = HomeState(isLoading = false),
+        onIntent = {}
+    )
 }
