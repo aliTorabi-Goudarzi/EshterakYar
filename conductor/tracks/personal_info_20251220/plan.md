@@ -15,7 +15,7 @@
     - [ ] Subtask: Write Unit Tests for initial load and validation logic (TDD - Red).
     - [ ] Subtask: Implement ViewModel with MVI (Load User, Validate, Save).
     - [ ] Subtask: Refactor Tests (TDD - Green).
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Presentation Logic (MVI)' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Presentation Logic (MVI)' (Protocol in workflow.md) [checkpoint: a1edb28]
 
 ## Phase 3: UI Implementation
 - [ ] Task: Create `PersonalInformationScreen` (Stateless) and `PersonalInformationRoute` (Stateful).
