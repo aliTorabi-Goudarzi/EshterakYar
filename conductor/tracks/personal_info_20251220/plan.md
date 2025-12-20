@@ -21,7 +21,7 @@
 - [x] Task: Create `PersonalInformationScreen` (Stateless) and `PersonalInformationRoute` (Stateful). 45aea9c
     - [ ] Subtask: Implement UI with `SquircleShape` inputs and FAB.
     - [ ] Subtask: Connect to ViewModel.
-- [ ] Task: Integrate Navigation.
+- [x] Task: Integrate Navigation. b86e4e6
     - [ ] Subtask: Add `PersonalInformation` destination to `Screens`.
     - [ ] Subtask: Update `ProfileScreen` to navigate to new screen.
     - [ ] Subtask: Update `NestedNavigationModule` / `RootGraph`.
