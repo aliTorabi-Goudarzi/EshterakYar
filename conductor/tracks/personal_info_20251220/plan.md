@@ -18,7 +18,7 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Presentation Logic (MVI)' (Protocol in workflow.md) [checkpoint: a1edb28]
 
 ## Phase 3: UI Implementation
-- [ ] Task: Create `PersonalInformationScreen` (Stateless) and `PersonalInformationRoute` (Stateful).
+- [x] Task: Create `PersonalInformationScreen` (Stateless) and `PersonalInformationRoute` (Stateful). 45aea9c
     - [ ] Subtask: Implement UI with `SquircleShape` inputs and FAB.
     - [ ] Subtask: Connect to ViewModel.
 - [ ] Task: Integrate Navigation.
