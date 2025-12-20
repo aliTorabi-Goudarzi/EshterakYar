@@ -22,4 +22,4 @@
 - [x] Task: Verify Navigation Flow and State. 642cc06
     - [ ] Subtask: Manual test of Home screen interactions.
     - [ ] Subtask: Check for memory leaks or duplicate ViewModel instances.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Final Verification & Cleanup' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Final Verification & Cleanup' (Protocol in workflow.md) [checkpoint: 6e1d0f2]
