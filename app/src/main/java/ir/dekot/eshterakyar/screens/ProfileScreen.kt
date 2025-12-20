@@ -185,6 +185,7 @@ private fun ProfileBottomSheetContent(
             title = "اطلاعات شخصی",
             subtitle = "مشاهده و ویرایش اطلاعات پروفایل",
             onClick = {
+                viewModel.navigateToPersonalInformation()
             }
         )
 

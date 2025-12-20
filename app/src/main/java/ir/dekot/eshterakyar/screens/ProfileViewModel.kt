@@ -34,6 +34,10 @@ class ProfileViewModel(
         rootNavigator.navigateTo(destination = Screens.SettingsScreen)
     }
 
+    fun navigateToPersonalInformation(){
+        rootNavigator.navigateTo(destination = Screens.PersonalInformation)
+    }
+
     private fun loadUser() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)

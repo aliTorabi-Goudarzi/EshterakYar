@@ -19,4 +19,7 @@ sealed class Screens {
     @Serializable
     data object ProfileDetailScreen : Screens()
 
+    @Serializable
+    data object PersonalInformation : Screens()
+
 }
