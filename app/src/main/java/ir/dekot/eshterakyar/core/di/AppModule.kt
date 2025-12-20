@@ -20,6 +20,7 @@ import ir.dekot.eshterakyar.feature_home.presentation.viewmodel.SubscriptionDeta
 import ir.dekot.eshterakyar.screens.ProfileDetailViewModel
 import ir.dekot.eshterakyar.screens.ProfileViewModel
 import ir.dekot.eshterakyar.screens.ReportsViewModel
+import ir.dekot.eshterakyar.screens.personalInfo.viewmodel.PersonalInformationViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -35,6 +36,7 @@ val appModule = module {
     viewModelOf(constructor = ::ReportsViewModel)
     viewModelOf(constructor = ::ProfileViewModel)
     viewModelOf(constructor = ::ProfileDetailViewModel)
+    viewModelOf(constructor = ::PersonalInformationViewModel)
 
     // Use Cases
     singleOf(constructor = ::GetAllSubscriptionsUseCase)
