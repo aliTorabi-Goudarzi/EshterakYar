@@ -42,7 +42,9 @@ class PersonalInformationViewModel(
                 _uiState.value = _uiState.value.copy(lastName = intent.lastName, lastNameError = null)
             }
             is PersonalInformationIntent.UpdatePhoneNumber -> {
-                _uiState.value = _uiState.value.copy(phoneNumber = intent.phoneNumber, phoneNumberError = null)
+                val cleaned = intent.phoneNumber.filter { it.isDigit() }.take(10)
+                val error = validatePhoneNumber(cleaned)
+                _uiState.value = _uiState.value.copy(phoneNumber = cleaned, phoneNumberError = error)
             }
             is PersonalInformationIntent.UpdateProfilePicture -> {
                 _uiState.value = _uiState.value.copy(profilePicture = intent.path)
@@ -69,7 +71,7 @@ class PersonalInformationViewModel(
                         isLoading = false,
                         name = user.name,
                         lastName = user.lastName,
-                        phoneNumber = user.phoneNumber,
+                        phoneNumber = normalizePhoneNumber(user.phoneNumber),
                         profilePicture = user.profilePicture,
                         accountCreationDate = user.accountCreationDate
                     )
@@ -79,6 +81,22 @@ class PersonalInformationViewModel(
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
             }
+        }
+    }
+
+    private fun normalizePhoneNumber(phone: String): String {
+        return phone.replace(" ", "")
+            .removePrefix("+98")
+            .removePrefix("0")
+    }
+
+    private fun validatePhoneNumber(phoneNumber: String): String? {
+        val phoneRegex = Regex("^9\\d{9}$")
+        if (phoneNumber.isEmpty()) return null
+        return if (!phoneNumber.matches(phoneRegex)) {
+            "شماره تلفن نامعتبر (۱۰ رقم)"
+        } else {
+            null
         }
     }
 
@@ -102,11 +120,12 @@ class PersonalInformationViewModel(
             isValid = false
         }
         
-        val phoneRegex = Regex("^(?:\\+98|0)?9\\d{9}$") 
-        val cleanedPhone = phoneNumber.replace(" ", "")
-        if (!cleanedPhone.matches(phoneRegex)) {
-             phoneNumberError = "شماره تلفن معتبر نیست"
+        if (phoneNumber.isBlank()) {
+             phoneNumberError = "شماره تلفن نمی‌تواند خالی باشد"
              isValid = false
+        } else {
+             phoneNumberError = validatePhoneNumber(phoneNumber)
+             if (phoneNumberError != null) isValid = false
         }
 
         if (!isValid) {
@@ -121,15 +140,18 @@ class PersonalInformationViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             try {
+                // Save as +98...
+                val finalPhone = "+98$phoneNumber"
+                
                 val updatedUser = currentUser?.copy(
                     name = name,
                     lastName = lastName,
-                    phoneNumber = phoneNumber,
+                    phoneNumber = finalPhone,
                     profilePicture = currentState.profilePicture
                 ) ?: User(
                     name = name,
                     lastName = lastName,
-                    phoneNumber = phoneNumber,
+                    phoneNumber = finalPhone,
                     profilePicture = currentState.profilePicture,
                     accountCreationDate = java.util.Date()
                 )

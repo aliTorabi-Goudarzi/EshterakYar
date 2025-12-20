@@ -140,7 +140,8 @@ fun PersonalInformationScreen(
                 isError = uiState.phoneNumberError != null,
                 supportingText = uiState.phoneNumberError?.let { { Text(it) } },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                singleLine = true
+                singleLine = true,
+                prefix = { Text("+98 ") }
             )
 
             // Account Creation Date (View Only)

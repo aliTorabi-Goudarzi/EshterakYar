@@ -46,7 +46,7 @@ class PersonalInformationViewModelTest {
         val state = viewModel.uiState.value
         assertEquals("Old", state.name)
         assertEquals("Name", state.lastName)
-        assertEquals("09123456789", state.phoneNumber)
+        assertEquals("9123456789", state.phoneNumber) // Normalized from 09123456789
     }
 
     @Test
@@ -75,5 +75,16 @@ class PersonalInformationViewModelTest {
         viewModel.onIntent(PersonalInformationIntent.SaveUser)
         
         coVerify(exactly = 1) { updateUserUseCase(any()) }
+    }
+
+    @Test
+    fun `UpdatePhoneNumber validates format`() = runTest {
+        viewModel = PersonalInformationViewModel(getUserUseCase, updateUserUseCase)
+        
+        viewModel.onIntent(PersonalInformationIntent.UpdatePhoneNumber("123"))
+        assert(viewModel.uiState.value.phoneNumberError != null)
+        
+        viewModel.onIntent(PersonalInformationIntent.UpdatePhoneNumber("9123456789"))
+        assert(viewModel.uiState.value.phoneNumberError == null)
     }
 }
