@@ -3,7 +3,7 @@
 ## Phase 1: Data Layer & Domain Logic
 - [x] Task: Create/Update `UserDao` to support updating user details. 64ad50d
     - [ ] Subtask: Ensure `updateUser(user: User)` exists and is tested.
-- [ ] Task: Create `UpdateUserUseCase`.
+- [x] Task: Create `UpdateUserUseCase`. cf27614
     - [ ] Subtask: Write Unit Tests (TDD - Red).
     - [ ] Subtask: Implement `UpdateUserUseCase`.
     - [ ] Subtask: Refactor (TDD - Green).
