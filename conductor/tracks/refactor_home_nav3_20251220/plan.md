@@ -3,7 +3,7 @@
 ## Phase 1: MVI & ViewModel Refactoring
 - [x] Task: Define `HomeState`, `HomeIntent`, and `HomeEffect` (MVI Contracts). d3d1000
     - [ ] Subtask: Create `HomeContract.kt` in `feature_home/presentation/mvi/`.
-- [ ] Task: Refactor `HomeViewModel` to Implement MVI.
+- [x] Task: Refactor `HomeViewModel` to Implement MVI. 12fc11a
     - [ ] Subtask: Write Unit Tests for `HomeViewModel` (TDD - Red).
     - [ ] Subtask: Implement `HomeViewModel` using `StateFlow` and `onIntent`.
     - [ ] Subtask: Refactor Tests (TDD - Green/Refactor).
