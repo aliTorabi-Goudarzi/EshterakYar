@@ -7,7 +7,7 @@
     - [ ] Subtask: Write Unit Tests for `HomeViewModel` (TDD - Red).
     - [ ] Subtask: Implement `HomeViewModel` using `StateFlow` and `onIntent`.
     - [ ] Subtask: Refactor Tests (TDD - Green/Refactor).
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: MVI & ViewModel Refactoring' (Protocol in workflow.md)
+- [ ] Task: Conductor - User Manual Verification 'Phase 1: MVI & ViewModel Refactoring' (Protocol in workflow.md) [checkpoint: b1835cb]
 
 ## Phase 2: Navigation 3 & UI Integration
 - [ ] Task: Refactor `HomeScreen` to Stateless/Stateful Pattern.
