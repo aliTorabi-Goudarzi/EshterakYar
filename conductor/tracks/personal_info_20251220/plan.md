@@ -11,7 +11,7 @@
 
 ## Phase 2: Presentation Logic (MVI)
 - [x] Task: Define `PersonalInformationState`, `Intent`, and `Effect`. 31f8f36
-- [ ] Task: Create `PersonalInformationViewModel`.
+- [x] Task: Create `PersonalInformationViewModel`. 4396ede
     - [ ] Subtask: Write Unit Tests for initial load and validation logic (TDD - Red).
     - [ ] Subtask: Implement ViewModel with MVI (Load User, Validate, Save).
     - [ ] Subtask: Refactor Tests (TDD - Green).
