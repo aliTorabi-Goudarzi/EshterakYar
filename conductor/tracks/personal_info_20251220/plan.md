@@ -25,7 +25,7 @@
     - [ ] Subtask: Add `PersonalInformation` destination to `Screens`.
     - [ ] Subtask: Update `ProfileScreen` to navigate to new screen.
     - [ ] Subtask: Update `NestedNavigationModule` / `RootGraph`.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: UI Implementation' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: UI Implementation' (Protocol in workflow.md) [checkpoint: 47a2232]
 
 ## Phase 4: Final Verification
 - [ ] Task: Verify Data Persistence and Validation.
