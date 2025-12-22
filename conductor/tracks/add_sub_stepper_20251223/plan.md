@@ -1,6 +1,6 @@
 # Implementation Plan - Multi-step Form Refactor
 
-## Phase 1: Setup and Resource Extraction
+## Phase 1: Setup and Resource Extraction [checkpoint: bc104b8]
 - [x] Task: Extract Strings 446b440
     - Extract all hardcoded strings from `AddSubscriptionScreen.kt` to `strings.xml`.
     - Add new strings required for the stepper (e.g., "Next", "Previous", "Review", "Step X of Y").
