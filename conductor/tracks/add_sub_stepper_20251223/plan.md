@@ -9,7 +9,7 @@
     - Create `StepContainer` composable to handle animations (slide/fade) between steps.
 - [ ] Task: Conductor - User Manual Verification 'Setup and Resource Extraction' (Protocol in workflow.md)
 
-## Phase 2: MVI & State Management Updates
+## Phase 2: MVI & State Management Updates [checkpoint: 48fa24b]
 - [x] Task: Update Domain/State Models 6baf6d4
     - Update `AddSubscriptionState` to include `currentStep` (Int or Enum).
     - Ensure all form fields are present in the state (Name, Category, Price, Currency, BillingCycle, Date, Active).
