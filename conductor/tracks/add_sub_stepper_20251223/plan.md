@@ -10,7 +10,7 @@
 - [ ] Task: Conductor - User Manual Verification 'Setup and Resource Extraction' (Protocol in workflow.md)
 
 ## Phase 2: MVI & State Management Updates
-- [ ] Task: Update Domain/State Models
+- [x] Task: Update Domain/State Models 6baf6d4
     - Update `AddSubscriptionState` to include `currentStep` (Int or Enum).
     - Ensure all form fields are present in the state (Name, Category, Price, Currency, BillingCycle, Date, Active).
 - [ ] Task: Update ViewModel (TDD)
