@@ -27,7 +27,7 @@
     - Create `BasicInfoStep.kt` composable.
     - Implement inputs for Name and Category.
     - Connect to ViewModel state and intents.
-- [ ] Task: Implement Step 2 - Payment Details
+- [x] Task: Implement Step 2 - Payment Details d3879e6
     - Create `PaymentStep.kt` composable.
     - Implement inputs for Price, Currency, and Billing Cycle.
     - Connect to ViewModel state and intents.
