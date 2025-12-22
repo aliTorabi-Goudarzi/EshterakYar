@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 
+import ir.dekot.eshterakyar.feature_addSubscription.presentation.intent.AddSubscriptionIntent
+
 class AddSubscriptionViewModel(
     private val insertSubscriptionUseCase: InsertSubscriptionUseCase
 ) : ViewModel() {
@@ -20,14 +22,66 @@ class AddSubscriptionViewModel(
     private val _uiState = MutableStateFlow(AddSubscriptionUiState())
     val uiState: StateFlow<AddSubscriptionUiState> = _uiState.asStateFlow()
 
-    fun updateName(name: String) {
+    fun onIntent(intent: AddSubscriptionIntent) {
+        when (intent) {
+            is AddSubscriptionIntent.OnNameChanged -> updateName(intent.name)
+            is AddSubscriptionIntent.OnPriceChanged -> updatePrice(intent.price)
+            is AddSubscriptionIntent.OnCurrencyChanged -> updateCurrency(intent.currency)
+            is AddSubscriptionIntent.OnBillingCycleChanged -> updateBillingCycle(intent.cycle)
+            is AddSubscriptionIntent.OnNextRenewalDateChanged -> updateNextRenewalDate(intent.date)
+            is AddSubscriptionIntent.OnActiveStatusChanged -> updateIsActive(intent.isActive)
+            is AddSubscriptionIntent.OnCategoryChanged -> updateCategory(intent.category)
+            AddSubscriptionIntent.OnNextStep -> onNextStep()
+            AddSubscriptionIntent.OnPreviousStep -> onPreviousStep()
+            AddSubscriptionIntent.OnSaveClicked -> saveSubscription()
+            AddSubscriptionIntent.OnErrorDismissed -> clearError()
+            AddSubscriptionIntent.OnSuccessDismissed -> resetSaveSuccess()
+        }
+    }
+
+    private fun onNextStep() {
+        val currentStep = _uiState.value.currentStep
+        if (validateStep(currentStep)) {
+            _uiState.value = _uiState.value.copy(currentStep = currentStep + 1)
+        }
+    }
+
+    private fun onPreviousStep() {
+        val currentStep = _uiState.value.currentStep
+        if (currentStep > 1) {
+            _uiState.value = _uiState.value.copy(currentStep = currentStep - 1)
+        }
+    }
+
+    private fun validateStep(step: Int): Boolean {
+        return when (step) {
+            1 -> { // Basic Info
+                val nameValid = _uiState.value.name.isNotBlank()
+                _uiState.value = _uiState.value.copy(
+                    nameError = if (!nameValid) "نام اشتراک نمی‌تواند خالی باشد" else null
+                )
+                nameValid
+            }
+            2 -> { // Payment Details
+                val priceValid = _uiState.value.price.isNotBlank() && 
+                                (_uiState.value.price.toDoubleOrNull() ?: 0.0) > 0
+                _uiState.value = _uiState.value.copy(
+                    priceError = if (!priceValid) "قیمت باید یک عدد مثبت باشد" else null
+                )
+                priceValid
+            }
+            else -> true
+        }
+    }
+
+    private fun updateName(name: String) {
         _uiState.value = _uiState.value.copy(
             name = name,
             nameError = if (name.isBlank()) "نام اشتراک نمی‌تواند خالی باشد" else null
         )
     }
 
-    fun updatePrice(price: String) {
+    private fun updatePrice(price: String) {
         _uiState.value = _uiState.value.copy(
             price = price,
             priceError = if (price.isBlank() || price.toDoubleOrNull() == null || price.toDouble() <= 0) 
@@ -36,27 +90,27 @@ class AddSubscriptionViewModel(
         )
     }
 
-    fun updateCurrency(currency: String) {
+    private fun updateCurrency(currency: String) {
         _uiState.value = _uiState.value.copy(currency = currency)
     }
 
-    fun updateBillingCycle(billingCycle: BillingCycle) {
+    private fun updateBillingCycle(billingCycle: BillingCycle) {
         _uiState.value = _uiState.value.copy(billingCycle = billingCycle)
     }
 
-    fun updateNextRenewalDate(date: Date) {
+    private fun updateNextRenewalDate(date: Date) {
         _uiState.value = _uiState.value.copy(nextRenewalDate = date)
     }
 
-    fun updateIsActive(isActive: Boolean) {
+    private fun updateIsActive(isActive: Boolean) {
         _uiState.value = _uiState.value.copy(isActive = isActive)
     }
 
-    fun updateCategory(category: SubscriptionCategory) {
+    private fun updateCategory(category: SubscriptionCategory) {
         _uiState.value = _uiState.value.copy(category = category)
     }
 
-    fun validateAndSave(): Boolean {
+    private fun validateAndSave(): Boolean {
         val nameError = if (_uiState.value.name.isBlank()) "نام اشتراک نمی‌تواند خالی باشد" else null
         val priceError = if (_uiState.value.price.isBlank() || 
                               _uiState.value.price.toDoubleOrNull() == null || 
@@ -72,7 +126,7 @@ class AddSubscriptionViewModel(
         return nameError == null && priceError == null
     }
 
-    fun saveSubscription() {
+    private fun saveSubscription() {
         if (!validateAndSave()) return
 
         val newSubscription = Subscription(
@@ -103,11 +157,11 @@ class AddSubscriptionViewModel(
         }
     }
 
-    fun clearError() {
+    private fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
     }
 
-    fun resetSaveSuccess() {
+    private fun resetSaveSuccess() {
         _uiState.value = _uiState.value.copy(saveSuccess = false)
     }
 }

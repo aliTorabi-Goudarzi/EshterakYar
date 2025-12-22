@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -52,11 +51,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.dekot.eshterakyar.core.utils.LocalTheme
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.BillingCycle
@@ -70,6 +67,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Error
+import ir.dekot.eshterakyar.feature_addSubscription.presentation.intent.AddSubscriptionIntent
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -114,7 +112,7 @@ fun AddSubscriptionScreen(
             // Reset states
             delay(1000)
             isSubmitting = false
-            viewModel.resetSaveSuccess()
+            viewModel.onIntent(AddSubscriptionIntent.OnSuccessDismissed)
         }
     }
 
@@ -134,7 +132,7 @@ fun AddSubscriptionScreen(
             }
             
             // Keep form expanded on error
-            viewModel.clearError()
+            viewModel.onIntent(AddSubscriptionIntent.OnErrorDismissed)
         }
     }
 
@@ -211,36 +209,36 @@ fun AddSubscriptionScreen(
                         uiState = uiState,
                         onNameChange = { 
                             Log.d("AddSubscriptionScreen", "DEBUG: Name changed to: $it")
-                            viewModel.updateName(it) 
+                            viewModel.onIntent(AddSubscriptionIntent.OnNameChanged(it))
                         },
                         onPriceChange = { 
                             Log.d("AddSubscriptionScreen", "DEBUG: Price changed to: $it")
-                            viewModel.updatePrice(it) 
+                            viewModel.onIntent(AddSubscriptionIntent.OnPriceChanged(it))
                         },
                         onCurrencyChange = { 
                             Log.d("AddSubscriptionScreen", "DEBUG: Currency changed to: $it")
-                            viewModel.updateCurrency(it) 
+                            viewModel.onIntent(AddSubscriptionIntent.OnCurrencyChanged(it))
                         },
                         onBillingCycleChange = { 
                             Log.d("AddSubscriptionScreen", "DEBUG: Billing cycle changed to: $it")
-                            viewModel.updateBillingCycle(it) 
+                            viewModel.onIntent(AddSubscriptionIntent.OnBillingCycleChanged(it))
                         },
                         onNextRenewalDateChange = { 
                             Log.d("AddSubscriptionScreen", "DEBUG: Next renewal date changed to: $it")
-                            viewModel.updateNextRenewalDate(it) 
+                            viewModel.onIntent(AddSubscriptionIntent.OnNextRenewalDateChanged(it))
                         },
                         onIsActiveChange = { 
                             Log.d("AddSubscriptionScreen", "DEBUG: Active status changed to: $it")
-                            viewModel.updateIsActive(it) 
+                            viewModel.onIntent(AddSubscriptionIntent.OnActiveStatusChanged(it))
                         },
                         onCategoryChange = { 
                             Log.d("AddSubscriptionScreen", "DEBUG: Category changed to: $it")
-                            viewModel.updateCategory(it) 
+                            viewModel.onIntent(AddSubscriptionIntent.OnCategoryChanged(it))
                         },
                         onSave = { 
                             Log.d("AddSubscriptionScreen", "DEBUG: Save button in form pressed")
                             isSubmitting = true
-                            viewModel.saveSubscription() 
+                            viewModel.onIntent(AddSubscriptionIntent.OnSaveClicked)
                         },
                         onCancel = {
                             Log.d("AddSubscriptionScreen", "DEBUG: Cancel button pressed")
