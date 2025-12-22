@@ -36,7 +36,7 @@
     - Implement Date Picker Dialog integration.
     - Implement Switch for Active status.
     - Connect to ViewModel state and intents.
-- [ ] Task: Implement Step 4 - Review
+- [x] Task: Implement Step 4 - Review 7dd4d89
     - Create `ReviewStep.kt` composable.
     - Display a summary of all collected data.
     - Implement "Confirm" button to trigger the final save intent.
