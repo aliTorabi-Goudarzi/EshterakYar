@@ -13,13 +13,13 @@
 - [x] Task: Update Domain/State Models 6baf6d4
     - Update `AddSubscriptionState` to include `currentStep` (Int or Enum).
     - Ensure all form fields are present in the state (Name, Category, Price, Currency, BillingCycle, Date, Active).
-- [ ] Task: Update ViewModel (TDD)
-    - [ ] Create/Update Unit Tests for `AddSubscriptionViewModel`.
+- [x] Task: Update ViewModel (TDD) fbe24fc
+    - [x] Create/Update Unit Tests for `AddSubscriptionViewModel`.
         - Test `OnNextStep` validation logic (prevent step increment if invalid).
         - Test `OnPreviousStep` logic.
         - Test individual field updates.
-    - [ ] Implement `OnNextStep` and `OnPreviousStep` intents in ViewModel.
-    - [ ] Implement validation logic for each step in the ViewModel.
+    - [x] Implement `OnNextStep` and `OnPreviousStep` intents in ViewModel.
+    - [x] Implement validation logic for each step in the ViewModel.
 - [ ] Task: Conductor - User Manual Verification 'MVI & State Management Updates' (Protocol in workflow.md)
 
 ## Phase 3: Step Components Implementation
