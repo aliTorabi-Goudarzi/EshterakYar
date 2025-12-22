@@ -52,7 +52,5 @@ private fun stepTransitionSpec(isMovingForward: Boolean): ContentTransform {
             slideOutHorizontally(animationSpec = tween(animationDuration)) { width -> width } + 
             fadeOut(animationSpec = tween(animationDuration))
         )
-    }.using(
-        SizeTransform(clip = false)
-    )
+    }
 }
