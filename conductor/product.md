@@ -13,6 +13,7 @@ EshterakYar is a comprehensive subscription management application designed to h
 
 ## Key Features
 - **Subscription Management:** Manual entry of subscriptions including Name, Cost, Cycle, and Renewal Date.
+- **User Profile & Personal Information:** Comprehensive user profile management, allowing users to view and edit their personal details (Name, Last Name, Phone Number) with real-time validation and localized formatting.
 - **Service Templates:** Pre-defined templates for popular services to speed up data entry.
 - **Dashboard:** Visual dashboard providing monthly and yearly spending summaries.
 - **Reminders:** Push notifications for upcoming payments to avoid missed due dates.
