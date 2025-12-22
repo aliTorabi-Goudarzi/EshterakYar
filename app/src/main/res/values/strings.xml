@@ -15,4 +15,31 @@
     <string name="price_rial">قیمت (ریال)</string>
     <string name="add_subscription_action">افزودن اشتراک</string>
     <string name="error_fill_required_fields">لطفاً همه فیلدها را تکمیل کنید</string>
+
+    <!-- Stepper Strings -->
+    <string name="price_label">مبلغ</string>
+    <string name="currency_label">واحد پول</string>
+    <string name="toman">تومان</string>
+    <string name="dollar">دلار</string>
+    <string name="category_label">دسته‌بندی</string>
+    <string name="billing_cycle_label">دوره تمدید</string>
+    <string name="next_renewal_date_label">تاریخ تمدید بعدی</string>
+    <string name="change_date_hint">برای تغییر تاریخ، از تقویم استفاده کنید</string>
+    <string name="subscription_status_label">وضعیت اشتراک</string>
+    <string name="active">فعال</string>
+    <string name="inactive">غیرفعال</string>
+    <string name="cancel_action">انصراف</string>
+    <string name="close_action">بستن</string>
+    <string name="error_adding_subscription">خطا در افزودن اشتراک: %1$s</string>
+    <string name="subscription_added_success">اشتراک با موفقیت اضافه شد</string>
+    <string name="click_to_add_subscription">برای افزودن اشتراک جدید روی دکمه زیر کلیک کنید</string>
+    <string name="step_basic_info">اطلاعات پایه</string>
+    <string name="step_payment">اطلاعات پرداخت</string>
+    <string name="step_schedule">زمان‌بندی</string>
+    <string name="step_review">بررسی نهایی</string>
+    <string name="next_step">مرحله بعد</string>
+    <string name="previous_step">مرحله قبل</string>
+    <string name="review_info">بررسی اطلاعات</string>
+    <string name="confirm_and_save">تایید و ذخیره</string>
+    <string name="step_counter">مرحله %1$d از %2$d</string>
 </resources>
