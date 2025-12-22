@@ -31,7 +31,7 @@
     - Create `PaymentStep.kt` composable.
     - Implement inputs for Price, Currency, and Billing Cycle.
     - Connect to ViewModel state and intents.
-- [ ] Task: Implement Step 3 - Schedule
+- [x] Task: Implement Step 3 - Schedule 29860c6
     - Create `ScheduleStep.kt` composable.
     - Implement Date Picker Dialog integration.
     - Implement Switch for Active status.
