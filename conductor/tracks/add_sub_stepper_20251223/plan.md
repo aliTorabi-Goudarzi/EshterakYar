@@ -23,7 +23,7 @@
 - [ ] Task: Conductor - User Manual Verification 'MVI & State Management Updates' (Protocol in workflow.md)
 
 ## Phase 3: Step Components Implementation
-- [ ] Task: Implement Step 1 - Basic Info
+- [x] Task: Implement Step 1 - Basic Info fdc62f8
     - Create `BasicInfoStep.kt` composable.
     - Implement inputs for Name and Category.
     - Connect to ViewModel state and intents.
