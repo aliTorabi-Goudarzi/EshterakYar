@@ -4,7 +4,7 @@
 - [x] Task: Extract Strings 446b440
     - Extract all hardcoded strings from `AddSubscriptionScreen.kt` to `strings.xml`.
     - Add new strings required for the stepper (e.g., "Next", "Previous", "Review", "Step X of Y").
-- [ ] Task: Create UI Components
+- [x] Task: Create UI Components 84699b6
     - Create `StepIndicator` composable for showing progress.
     - Create `StepContainer` composable to handle animations (slide/fade) between steps.
 - [ ] Task: Conductor - User Manual Verification 'Setup and Resource Extraction' (Protocol in workflow.md)
