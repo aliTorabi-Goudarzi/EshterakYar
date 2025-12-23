@@ -22,7 +22,7 @@
     - [x] Implement validation logic for each step in the ViewModel.
 - [ ] Task: Conductor - User Manual Verification 'MVI & State Management Updates' (Protocol in workflow.md)
 
-## Phase 3: Step Components Implementation
+## Phase 3: Step Components Implementation [checkpoint: d280ea5]
 - [x] Task: Implement Step 1 - Basic Info fdc62f8
     - Create `BasicInfoStep.kt` composable.
     - Implement inputs for Name and Category.
