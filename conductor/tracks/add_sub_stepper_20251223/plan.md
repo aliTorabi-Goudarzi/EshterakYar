@@ -43,7 +43,7 @@
 - [ ] Task: Conductor - User Manual Verification 'Step Components Implementation' (Protocol in workflow.md)
 
 ## Phase 4: Integration and Polish
-- [ ] Task: Integrate Stepper into Main Screen
+- [x] Task: Integrate Stepper into Main Screen 60a55c1
     - Refactor `AddSubscriptionScreen.kt` to use the new `StepContainer` and individual step composables.
     - Wire up the `StepIndicator` with the ViewModel's `currentStep` state.
     - Wire up Next/Back/Cancel buttons.
