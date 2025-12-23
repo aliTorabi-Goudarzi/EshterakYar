@@ -1,6 +1,9 @@
 package ir.dekot.eshterakyar.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,12 +16,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,25 +35,33 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation3.runtime.NavBackStack
 import ir.dekot.eshterakyar.core.navigation.RootNavigator
 import ir.dekot.eshterakyar.core.themePreferences.ThemeSwitch
 import ir.dekot.eshterakyar.core.themePreferences.ThemeViewModel
+import ir.dekot.eshterakyar.core.utils.Currency
 import ir.dekot.eshterakyar.core.utils.LocalTheme
 import org.koin.androidx.compose.koinViewModel
+import sv.lib.squircleshape.CornerSmoothing
+import sv.lib.squircleshape.SquircleShape
 
 @Composable
 fun SettingsScreen(
     rootNavigator: RootNavigator,
-    viewModel: ThemeViewModel = koinViewModel()
+    themeViewModel: ThemeViewModel = koinViewModel(),
+    settingsViewModel: SettingsViewModel = koinViewModel()
 ) {
-    val isDark by viewModel.isDarkTheme.collectAsStateWithLifecycle()
+    val isDark by themeViewModel.isDarkTheme.collectAsStateWithLifecycle()
+    val settingsState by settingsViewModel.uiState.collectAsStateWithLifecycle()
     val theme = LocalTheme.current
 
     Scaffold(
@@ -89,6 +104,19 @@ fun SettingsScreen(
                 }
             }
 
+            // Currency Setting Card
+            SettingsCard(
+                title = "واحد پول پیش‌فرض",
+                icon = Icons.Default.AttachMoney
+            ) {
+                CurrencySelector(
+                    selectedCurrency = settingsState.preferredCurrency,
+                    onCurrencySelected = { currency ->
+                        settingsViewModel.setPreferredCurrency(currency)
+                    }
+                )
+            }
+
             // Notifications Setting Card (Placeholder)
             SettingsCard(
                 title = "اطلاعیه‌ها",
@@ -114,6 +142,130 @@ fun SettingsScreen(
             }
 
             Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
+}
+
+/**
+ * انتخابگر ارز پیش‌فرض
+ */
+@Composable
+private fun CurrencySelector(
+    selectedCurrency: Currency,
+    onCurrencySelected: (Currency) -> Unit
+) {
+    val theme = LocalTheme.current
+    var expanded by remember { mutableStateOf(false) }
+
+    Column {
+        Text(
+            text = "ارز مورد نظر خود را انتخاب کنید",
+            style = MaterialTheme.typography.bodySmall,
+            color = theme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        Box {
+            // نمایش ارز انتخاب شده
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(
+                        SquircleShape(
+                            topStart = 8,
+                            topEnd = 8,
+                            bottomStart = 8,
+                            bottomEnd = 8,
+                            smoothing = CornerSmoothing.Medium
+                        )
+                    )
+                    .background(theme.surface)
+                    .clickable { expanded = true }
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = selectedCurrency.symbol,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = theme.primary
+                    )
+                    Column {
+                        Text(
+                            text = selectedCurrency.persianName,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Medium,
+                            color = theme.onSurface
+                        )
+                        Text(
+                            text = selectedCurrency.code,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = theme.onSurfaceVariant
+                        )
+                    }
+                }
+                Text(
+                    text = "تغییر",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = theme.primary,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            // منوی کشویی انتخاب ارز
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.background(theme.surface)
+            ) {
+                Currency.entries.forEach { currency ->
+                    DropdownMenuItem(
+                        text = {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = currency.symbol,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (currency == selectedCurrency) theme.primary else theme.onSurface
+                                )
+                                Column {
+                                    Text(
+                                        text = currency.persianName,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = theme.onSurface
+                                    )
+                                    Text(
+                                        text = currency.code,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = theme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        },
+                        onClick = {
+                            onCurrencySelected(currency)
+                            expanded = false
+                        },
+                        trailingIcon = {
+                            if (currency == selectedCurrency) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "انتخاب شده",
+                                    tint = theme.primary
+                                )
+                            }
+                        }
+                    )
+                }
+            }
         }
     }
 }

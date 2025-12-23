@@ -8,7 +8,7 @@ import ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription
 @Database(
     entities = [Subscription::class, User::class],
     version = 2,
-    exportSchema = true
+    exportSchema = false
 )
 
 @TypeConverters(ir.dekot.eshterakyar.core.database.TypeConverters::class)

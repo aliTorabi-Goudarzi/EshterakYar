@@ -111,6 +111,12 @@ dependencies {
     //CustomShape
     implementation(libs.squircleShape)
 
+    //Charts
+    implementation(libs.vico.compose.m3)
+
+    //WorkManager
+    implementation(libs.androidx.work.runtime.ktx)
+
     //Navigation 3
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.navigation3.runtime)
