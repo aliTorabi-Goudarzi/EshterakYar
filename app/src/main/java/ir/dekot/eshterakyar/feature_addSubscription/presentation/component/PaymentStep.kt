@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import ir.dekot.eshterakyar.R
@@ -54,7 +55,7 @@ fun PaymentStep(
                 onValueChange = onPriceChange,
                 label = { Text(stringResource(R.string.price_label)) },
                 modifier = Modifier.weight(1f),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
                 isError = uiState.priceError != null,
                 supportingText = uiState.priceError?.let { { Text(it) } },
                 singleLine = true

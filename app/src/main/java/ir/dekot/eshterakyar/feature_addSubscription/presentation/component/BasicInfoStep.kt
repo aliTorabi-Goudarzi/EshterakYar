@@ -3,6 +3,7 @@ package ir.dekot.eshterakyar.feature_addSubscription.presentation.component
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -16,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import ir.dekot.eshterakyar.R
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.SubscriptionCategory
@@ -45,6 +47,7 @@ fun BasicInfoStep(
             label = { Text(stringResource(R.string.subscription_name)) },
             modifier = Modifier.fillMaxWidth(),
             isError = uiState.nameError != null,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             supportingText = uiState.nameError?.let { { Text(it) } },
             singleLine = true
         )
