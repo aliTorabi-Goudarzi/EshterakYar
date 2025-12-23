@@ -162,6 +162,6 @@ class AddSubscriptionViewModel(
     }
 
     private fun resetSaveSuccess() {
-        _uiState.value = _uiState.value.copy(saveSuccess = false)
+        _uiState.value = AddSubscriptionUiState()
     }
 }
