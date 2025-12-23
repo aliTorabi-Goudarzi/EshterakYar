@@ -42,7 +42,7 @@
     - Implement "Confirm" button to trigger the final save intent.
 - [ ] Task: Conductor - User Manual Verification 'Step Components Implementation' (Protocol in workflow.md)
 
-## Phase 4: Integration and Polish
+## Phase 4: Integration and Polish [checkpoint: 4fa8cc6]
 - [x] Task: Integrate Stepper into Main Screen 60a55c1
     - Refactor `AddSubscriptionScreen.kt` to use the new `StepContainer` and individual step composables.
     - Wire up the `StepIndicator` with the ViewModel's `currentStep` state.
