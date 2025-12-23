@@ -47,7 +47,7 @@
     - Refactor `AddSubscriptionScreen.kt` to use the new `StepContainer` and individual step composables.
     - Wire up the `StepIndicator` with the ViewModel's `currentStep` state.
     - Wire up Next/Back/Cancel buttons.
-- [ ] Task: UI/UX Polish
+- [x] Task: UI/UX Polish d728283
     - Verify and fine-tune animations.
     - Ensure keyboard handling (IME actions) is correct between fields.
     - Verify dark mode support.
