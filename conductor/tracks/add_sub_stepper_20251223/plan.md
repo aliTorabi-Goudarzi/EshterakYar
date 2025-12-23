@@ -51,4 +51,5 @@
     - Verify and fine-tune animations.
     - Ensure keyboard handling (IME actions) is correct between fields.
     - Verify dark mode support.
+- [x] Fix: Reset form after success 8b76f1a
 - [ ] Task: Conductor - User Manual Verification 'Integration and Polish' (Protocol in workflow.md)
