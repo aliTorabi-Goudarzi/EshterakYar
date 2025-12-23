@@ -59,5 +59,21 @@ data class AddSubscriptionUiState(
 
     // مرحله فعلی فرم (از ۱ شروع می‌شود)
     // Current form step (starts from 1)
-    val currentStep: Int = 1
+    val currentStep: Int = 1,
+
+    // لیست اشتراک‌ها
+    // Subscriptions list
+    val subscriptions: List<ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription> = emptyList(),
+
+    // اشتراک انتخاب شده برای نمایش در باتم‌شیت
+    // Selected subscription for bottom sheet
+    val selectedSubscription: ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription? = null,
+
+    // وضعیت نمایش باتم‌شیت
+    // Bottom sheet visibility status
+    val isBottomSheetOpen: Boolean = false,
+
+    // وضعیت نمایش دیالوگ حذف
+    // Delete dialog visibility status
+    val isDeleteDialogVisible: Boolean = false
 )

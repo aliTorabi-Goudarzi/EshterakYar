@@ -7,6 +7,9 @@ interface SubscriptionRepository {
     
     // Get all subscriptions
     fun getAllSubscriptions(): Flow<List<Subscription>>
+
+    // Get all subscriptions sorted by creation date (newest first)
+    fun getAllSubscriptionsSortedByCreation(): Flow<List<Subscription>>
     
     // Get only active subscriptions
     fun getActiveSubscriptions(): Flow<List<Subscription>>

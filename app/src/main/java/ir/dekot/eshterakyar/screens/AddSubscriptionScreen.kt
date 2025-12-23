@@ -13,6 +13,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,15 +21,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +41,8 @@ import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -57,6 +64,8 @@ import ir.dekot.eshterakyar.feature_addSubscription.presentation.component.Revie
 import ir.dekot.eshterakyar.feature_addSubscription.presentation.component.ScheduleStep
 import ir.dekot.eshterakyar.feature_addSubscription.presentation.component.StepContainer
 import ir.dekot.eshterakyar.feature_addSubscription.presentation.component.StepIndicator
+import ir.dekot.eshterakyar.feature_addSubscription.presentation.component.SubscriptionDetailBottomSheet
+import ir.dekot.eshterakyar.feature_addSubscription.presentation.component.SubscriptionItem
 import ir.dekot.eshterakyar.feature_addSubscription.presentation.intent.AddSubscriptionIntent
 import ir.dekot.eshterakyar.feature_addSubscription.presentation.state.AddSubscriptionUiState
 import ir.dekot.eshterakyar.feature_addSubscription.presentation.viewmodel.AddSubscriptionViewModel
@@ -64,14 +73,17 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddSubscriptionScreen(
-    viewModel: AddSubscriptionViewModel = koinViewModel()
+    viewModel: AddSubscriptionViewModel = koinViewModel(),
+    onEditSubscription: (Long) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val theme = LocalTheme.current
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState()
     
     // وضعیت نمایش فرم
     // Form visibility state
@@ -121,51 +133,54 @@ fun AddSubscriptionScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
-        // ناحیه اصلی محتوا
-        // Main content area
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .weight(1f)
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
+            Spacer(modifier = Modifier.height(30.dp))
+            // ناحیه اصلی محتوا
+            // Main content area
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Top
             ) {
-                if (!isFormExpanded) {
-                    // حالت اولیه - نمایش پیام
-                    // Initial state - show message
-                    Text(
-                        text = stringResource(R.string.click_to_add_subscription),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = theme.onSurfaceVariant,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    // دکمه زیر متن
-                    // Button under the text
-                    Button(
-                        onClick = { isFormExpanded = true },
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                // نمایش دکمه و متن فقط وقتی فرم بسته است
+                // Show button and text only when form is collapsed
+                AnimatedVisibility(visible = !isFormExpanded) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(top = 24.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = stringResource(R.string.add_subscription_action),
-                            modifier = Modifier.size(20.dp)
+                        Text(
+                            text = stringResource(R.string.click_to_add_subscription),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = theme.onSurfaceVariant,
+                            modifier = Modifier.padding(16.dp)
                         )
-                        Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-                        Text(stringResource(R.string.add_subscription_action))
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        // دکمه افزودن
+                        // Add Button
+                        Button(
+                            onClick = { isFormExpanded = true },
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = stringResource(R.string.add_subscription_action),
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.padding(horizontal = 8.dp))
+                            Text(stringResource(R.string.add_subscription_action))
+                        }
                     }
                 }
-                
-                Spacer(modifier = Modifier.height(16.dp))
                 
                 // کانتینر انیمیشن فرم
                 // Animated form container
@@ -197,6 +212,27 @@ fun AddSubscriptionScreen(
                         modifier = Modifier.padding(16.dp)
                     )
                 }
+
+                // لیست اشتراک‌ها
+                // Subscription List
+                if (uiState.subscriptions.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    LazyColumn(
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(uiState.subscriptions, key = { it.id }) { subscription ->
+                            SubscriptionItem(
+                                subscription = subscription,
+                                onClick = { viewModel.onIntent(AddSubscriptionIntent.OnSubscriptionClicked(subscription)) }
+                            )
+                        }
+                        // فضای خالی پایین لیست برای دیده شدن آیتم‌های آخر
+                        // Extra padding at bottom
+                        item { Spacer(modifier = Modifier.height(80.dp)) }
+                    }
+                }
             }
         }
         
@@ -204,7 +240,9 @@ fun AddSubscriptionScreen(
         // Snackbar host at bottom
         SnackbarHost(
             hostState = snackbarHostState,
-            modifier = Modifier.padding(bottom = 80.dp)
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 80.dp)
         ) { data ->
             CustomSnackbar(
                 message = data.visuals.message,
@@ -213,7 +251,47 @@ fun AddSubscriptionScreen(
             )
         }
     }
+
+    // باتم‌شیت جزئیات اشتراک
+    // Subscription Detail Bottom Sheet
+    if (uiState.isBottomSheetOpen && uiState.selectedSubscription != null) {
+        SubscriptionDetailBottomSheet(
+            subscription = uiState.selectedSubscription!!,
+            onEditClick = {
+                val sub = uiState.selectedSubscription!!
+                viewModel.onIntent(AddSubscriptionIntent.OnEditClicked(sub))
+                onEditSubscription(sub.id)
+            },
+            onDeleteClick = { viewModel.onIntent(AddSubscriptionIntent.OnDeleteClicked) },
+            onDismissRequest = { viewModel.onIntent(AddSubscriptionIntent.OnBottomSheetDismissed) },
+            sheetState = sheetState
+        )
+    }
+
+    // دیالوگ تایید حذف
+    // Delete Confirmation Dialog
+    if (uiState.isDeleteDialogVisible) {
+        AlertDialog(
+            onDismissRequest = { viewModel.onIntent(AddSubscriptionIntent.OnDeleteCancelled) },
+            title = { Text(stringResource(R.string.delete_confirmation_title)) },
+            text = { Text(stringResource(R.string.delete_confirmation_message)) },
+            confirmButton = {
+                TextButton(onClick = { viewModel.onIntent(AddSubscriptionIntent.OnDeleteConfirmed) }) {
+                    Text(stringResource(R.string.delete_action), color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.onIntent(AddSubscriptionIntent.OnDeleteCancelled) }) {
+                    Text(stringResource(R.string.cancel_action))
+                }
+            },
+            containerColor = theme.surface,
+            titleContentColor = theme.onSurface,
+            textContentColor = theme.onSurfaceVariant
+        )
+    }
 }
+
 
 @Composable
 private fun AddSubscriptionStepper(

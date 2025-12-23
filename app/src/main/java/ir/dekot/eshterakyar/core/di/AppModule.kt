@@ -10,6 +10,7 @@ import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetInactiveSu
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetNearingRenewalSubscriptionsUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetSubscriptionByIdUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetSubscriptionStatsUseCase
+import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetSubscriptionsSortedByCreationUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.InsertSubscriptionUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.UpdateSubscriptionUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.presentation.viewmodel.AddSubscriptionViewModel
@@ -40,6 +41,7 @@ val appModule = module {
 
     // Use Cases
     singleOf(constructor = ::GetAllSubscriptionsUseCase)
+    singleOf(constructor = ::GetSubscriptionsSortedByCreationUseCase)
     singleOf(constructor = ::GetActiveSubscriptionsUseCase)
     singleOf(constructor = ::GetInactiveSubscriptionsUseCase)
     singleOf(constructor = ::GetNearingRenewalSubscriptionsUseCase)

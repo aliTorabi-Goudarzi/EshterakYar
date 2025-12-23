@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.BillingCycle
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.SubscriptionCategory
+import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.DeleteSubscriptionUseCase
+import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetSubscriptionsSortedByCreationUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.InsertSubscriptionUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.presentation.state.AddSubscriptionUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,11 +18,25 @@ import java.util.Date
 import ir.dekot.eshterakyar.feature_addSubscription.presentation.intent.AddSubscriptionIntent
 
 class AddSubscriptionViewModel(
-    private val insertSubscriptionUseCase: InsertSubscriptionUseCase
+    private val insertSubscriptionUseCase: InsertSubscriptionUseCase,
+    private val getSubscriptionsSortedByCreationUseCase: GetSubscriptionsSortedByCreationUseCase,
+    private val deleteSubscriptionUseCase: DeleteSubscriptionUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddSubscriptionUiState())
     val uiState: StateFlow<AddSubscriptionUiState> = _uiState.asStateFlow()
+
+    init {
+        loadSubscriptions()
+    }
+
+    private fun loadSubscriptions() {
+        viewModelScope.launch {
+            getSubscriptionsSortedByCreationUseCase().collect { subscriptions ->
+                _uiState.value = _uiState.value.copy(subscriptions = subscriptions)
+            }
+        }
+    }
 
     fun onIntent(intent: AddSubscriptionIntent) {
         when (intent) {
@@ -36,6 +52,53 @@ class AddSubscriptionViewModel(
             AddSubscriptionIntent.OnSaveClicked -> saveSubscription()
             AddSubscriptionIntent.OnErrorDismissed -> clearError()
             AddSubscriptionIntent.OnSuccessDismissed -> resetSaveSuccess()
+            
+            is AddSubscriptionIntent.OnSubscriptionClicked -> {
+                _uiState.value = _uiState.value.copy(
+                    selectedSubscription = intent.subscription,
+                    isBottomSheetOpen = true
+                )
+            }
+            AddSubscriptionIntent.OnBottomSheetDismissed -> {
+                _uiState.value = _uiState.value.copy(
+                    isBottomSheetOpen = false,
+                    selectedSubscription = null
+                )
+            }
+            AddSubscriptionIntent.OnDeleteClicked -> {
+                _uiState.value = _uiState.value.copy(isDeleteDialogVisible = true)
+            }
+            AddSubscriptionIntent.OnDeleteConfirmed -> deleteSelectedSubscription()
+            AddSubscriptionIntent.OnDeleteCancelled -> {
+                _uiState.value = _uiState.value.copy(isDeleteDialogVisible = false)
+            }
+            is AddSubscriptionIntent.OnEditClicked -> {
+                // Navigation is handled by UI (SideEffect), but we close the sheet
+                _uiState.value = _uiState.value.copy(
+                    isBottomSheetOpen = false,
+                    selectedSubscription = null
+                )
+            }
+        }
+    }
+    
+    private fun deleteSelectedSubscription() {
+        val subToDelete = _uiState.value.selectedSubscription ?: return
+        
+        viewModelScope.launch {
+            try {
+                deleteSubscriptionUseCase(subToDelete)
+                _uiState.value = _uiState.value.copy(
+                    isDeleteDialogVisible = false,
+                    isBottomSheetOpen = false,
+                    selectedSubscription = null
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = "خطا در حذف اشتراک: ${e.message}",
+                    isDeleteDialogVisible = false
+                )
+            }
         }
     }
 
@@ -162,6 +225,9 @@ class AddSubscriptionViewModel(
     }
 
     private fun resetSaveSuccess() {
-        _uiState.value = AddSubscriptionUiState()
+        // Reset form but keep subscriptions
+        _uiState.value = AddSubscriptionUiState(
+            subscriptions = _uiState.value.subscriptions
+        )
     }
 }

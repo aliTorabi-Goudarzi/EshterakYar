@@ -27,7 +27,12 @@ val nestedNavigationModule = module {
             onNavigateToEdit = { id -> rootNavigator.navigateTo(Screens.EditSubscription(id)) }
         )
     }
-    navigation<BottomBarItem.AddSubscription> { AddSubscriptionScreen() }
+    navigation<BottomBarItem.AddSubscription> { 
+        val rootNavigator: RootNavigator = koinInject()
+        AddSubscriptionScreen(
+            onEditSubscription = { id -> rootNavigator.navigateTo(Screens.EditSubscription(id)) }
+        ) 
+    }
     navigation<BottomBarItem.Reports> { ReportsScreen() }
     navigation<BottomBarItem.Profile> { ProfileScreen()}
 }

@@ -42,4 +42,11 @@
     <string name="review_info">بررسی اطلاعات</string>
     <string name="confirm_and_save">تایید و ذخیره</string>
     <string name="step_counter">مرحله %1$d از %2$d</string>
+
+    <string name="edit_action">ویرایش</string>
+    <string name="delete_action">حذف</string>
+    <string name="delete_confirmation_title">حذف اشتراک</string>
+    <string name="delete_confirmation_message">آیا از حذف این اشتراک اطمینان دارید؟</string>
+    <string name="yes">بله</string>
+    <string name="no">خیر</string>
 </resources>

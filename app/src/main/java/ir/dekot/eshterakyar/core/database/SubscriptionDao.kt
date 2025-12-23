@@ -9,6 +9,9 @@ interface SubscriptionDao {
     
     @Query("SELECT * FROM subscriptions ORDER BY nextRenewalDate ASC")
     fun getAllSubscriptions(): Flow<List<Subscription>>
+
+    @Query("SELECT * FROM subscriptions ORDER BY id DESC")
+    fun getAllSubscriptionsSortedByCreation(): Flow<List<Subscription>>
     
     @Query("SELECT * FROM subscriptions WHERE isActive = 1 ORDER BY nextRenewalDate ASC")
     fun getActiveSubscriptions(): Flow<List<Subscription>>

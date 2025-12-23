@@ -12,6 +12,10 @@ class SubscriptionRepositoryImpl(
     override fun getAllSubscriptions(): Flow<List<Subscription>> {
         return subscriptionDao.getAllSubscriptions()
     }
+
+    override fun getAllSubscriptionsSortedByCreation(): Flow<List<Subscription>> {
+        return subscriptionDao.getAllSubscriptionsSortedByCreation()
+    }
     
     override fun getActiveSubscriptions(): Flow<List<Subscription>> {
         return subscriptionDao.getActiveSubscriptions()

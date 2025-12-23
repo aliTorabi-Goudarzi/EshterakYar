@@ -13,7 +13,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.dekot.eshterakyar.core.utils.LocalTheme
@@ -141,7 +145,7 @@ fun PersonalInformationScreen(
                 supportingText = uiState.phoneNumberError?.let { { Text(it) } },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                 singleLine = true,
-                prefix = { Text("+98 ") }
+                visualTransformation = IranPhoneVisualTransformation()
             )
 
             // Account Creation Date (View Only)
@@ -179,6 +183,55 @@ fun PersonalInformationScreen(
     }
 }
 
+/**
+ * تبدیل‌گر بصری برای شماره تلفن همراه ایران به فرمت: +98 9XX XXX XX XX
+ */
+class IranPhoneVisualTransformation : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        val raw = text.text
+        val out = StringBuilder("+98 ")
+        
+        for (i in raw.indices) {
+            out.append(raw[i])
+            // فرمت: 912 345 67 89
+            if (i == 2 || i == 5 || i == 7) {
+                if (i != raw.lastIndex) out.append(" ")
+            }
+        }
+        
+        val transformed = out.toString()
+        
+        val offsetMapping = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int {
+                // پیشوند "+98 " دارای ۴ کاراکتر است.
+                if (offset <= 0) return 4
+                var spaceCount = 0
+                if (offset > 3) spaceCount++
+                if (offset > 6) spaceCount++
+                if (offset > 8) spaceCount++
+                
+                return offset + 4 + spaceCount
+            }
+
+            override fun transformedToOriginal(offset: Int): Int {
+                // معکوس نگاشت بالا
+                if (offset <= 4) return 0
+                var spaceCount = 0
+                // مکان فضاهای خالی در متن تغییر یافته (با احتساب پیشوند ۴ کاراکتری):
+                // کاراکتر ۷ (بعد از رقم ۳ام)، کاراکتر ۱۱ (بعد از رقم ۶ام)، کاراکتر ۱۴ (بعد از رقم ۸ام)
+                if (offset > 7) spaceCount++
+                if (offset > 11) spaceCount++
+                if (offset > 14) spaceCount++
+                
+                val original = offset - 4 - spaceCount
+                return original.coerceIn(0, raw.length)
+            }
+        }
+        
+        return TransformedText(AnnotatedString(transformed), offsetMapping)
+    }
+}
+
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true)
 @Composable
 fun PersonalInformationScreenPreview() {
@@ -186,8 +239,8 @@ fun PersonalInformationScreenPreview() {
         uiState = PersonalInformationState(
             name = "علی",
             lastName = "ترابی",
-            phoneNumber = "09123456789",
-            accountCreationDate = java.util.Date()
+            phoneNumber = "9123456789",
+            accountCreationDate = Date()
         ),
         onIntent = {},
         snackbarHostState = remember { SnackbarHostState() }

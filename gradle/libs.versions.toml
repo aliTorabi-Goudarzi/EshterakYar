@@ -21,8 +21,8 @@ squircleShape = "4.0.0"
 navigation3 = "1.0.0"
 lifecycleViewmodelNav3 = "2.10.0"
 coil = "2.7.0"
-mockk = "1.13.13"
-turbine = "1.2.0"
+mockk = "1.14.7"
+turbine = "1.2.1"
 
 [libraries]
 # Core

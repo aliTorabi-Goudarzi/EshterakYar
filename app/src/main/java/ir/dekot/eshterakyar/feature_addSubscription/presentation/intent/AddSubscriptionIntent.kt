@@ -1,6 +1,7 @@
 package ir.dekot.eshterakyar.feature_addSubscription.presentation.intent
 
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.BillingCycle
+import ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.SubscriptionCategory
 import java.util.Date
 
@@ -33,6 +34,30 @@ sealed class AddSubscriptionIntent {
     // Change category
     data class OnCategoryChanged(val category: SubscriptionCategory) : AddSubscriptionIntent()
     
+    // انتخاب اشتراک از لیست
+    // Select subscription from list
+    data class OnSubscriptionClicked(val subscription: Subscription) : AddSubscriptionIntent()
+
+    // بستن باتم‌شیت
+    // Dismiss bottom sheet
+    data object OnBottomSheetDismissed : AddSubscriptionIntent()
+
+    // کلیک روی دکمه حذف
+    // Delete clicked
+    data object OnDeleteClicked : AddSubscriptionIntent()
+
+    // تایید حذف
+    // Confirm delete
+    data object OnDeleteConfirmed : AddSubscriptionIntent()
+
+    // انصراف از حذف
+    // Cancel delete
+    data object OnDeleteCancelled : AddSubscriptionIntent()
+
+    // کلیک روی ویرایش
+    // Edit clicked
+    data class OnEditClicked(val subscription: Subscription) : AddSubscriptionIntent()
+
     // رفتن به مرحله بعد
     // Go to next step
     data object OnNextStep : AddSubscriptionIntent()
