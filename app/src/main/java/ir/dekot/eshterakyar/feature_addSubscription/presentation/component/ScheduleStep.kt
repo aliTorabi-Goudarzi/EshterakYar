@@ -10,14 +10,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,113 +40,136 @@ fun ScheduleStep(
         onActiveChange: (Boolean) -> Unit,
         modifier: Modifier = Modifier
 ) {
-    var showDatePicker by remember { mutableStateOf(false) }
-    // استفاده از فرمت تاریخ شمسی (در آینده بهتر است از تقویم شمسی واقعی استفاده شود)
-    // Using Persian date format (better to use real Persian Calendar in future)
+        var showDatePicker by remember { mutableStateOf(false) }
+        // استفاده از فرمت تاریخ شمسی (در آینده بهتر است از تقویم شمسی واقعی استفاده شود)
+        // Using Persian date format (better to use real Persian Calendar in future)
 
-    if (showDatePicker) {
-        val datePickerState =
-                rememberDatePickerState(initialSelectedDateMillis = uiState.nextRenewalDate.time)
+        if (showDatePicker) {
+                val initialJalaliDate =
+                        remember(uiState.nextRenewalDate) {
+                                val localDate =
+                                        uiState.nextRenewalDate
+                                                .toInstant()
+                                                .atZone(java.time.ZoneId.systemDefault())
+                                                .toLocalDate()
+                                ir.dekot.eshterakyar.core.domain.utils.DateConverter.toJalali(
+                                        localDate
+                                )
+                        }
 
-        DatePickerDialog(
-                onDismissRequest = { showDatePicker = false },
-                confirmButton = {
-                    TextButton(
-                            onClick = {
-                                datePickerState.selectedDateMillis?.let { onDateChange(Date(it)) }
+                ir.dekot.eshterakyar.core.presentation.components.JalaliDatePickerDialog(
+                        onDismissRequest = { showDatePicker = false },
+                        onDateChange = { jalaliDate ->
+                                val localDate =
+                                        ir.dekot.eshterakyar.core.domain.utils.DateConverter
+                                                .toGregorian(jalaliDate)
+                                val date =
+                                        java.util.Date.from(
+                                                localDate
+                                                        .atStartOfDay(
+                                                                java.time.ZoneId.systemDefault()
+                                                        )
+                                                        .toInstant()
+                                        )
+                                onDateChange(date)
                                 showDatePicker = false
-                            }
-                    ) { Text(stringResource(R.string.confirm)) }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showDatePicker = false }) {
-                        Text(stringResource(R.string.cancel))
-                    }
-                }
-        ) { DatePicker(state = datePickerState) }
-    }
-
-    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        // کارت انتخاب تاریخ
-        // Date Selector Card
-        Card(
-                modifier = Modifier.fillMaxWidth().clickable { showDatePicker = true },
-                colors =
-                        CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-        ) {
-            Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                Text(
-                        text = stringResource(R.string.next_renewal_date_label),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface
+                        },
+                        initialDate = initialJalaliDate
                 )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                        text =
-                                with(uiState.nextRenewalDate) {
-                                    val localDate =
-                                            this.toInstant()
-                                                    .atZone(java.time.ZoneId.systemDefault())
-                                                    .toLocalDate()
-                                    val jalaliDate =
-                                            ir.dekot.eshterakyar.core.domain.utils.DateConverter
-                                                    .toJalali(localDate)
-                                    "${jalaliDate.day} ${jalaliDate.monthName()} ${jalaliDate.year}"
-                                },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                        text = stringResource(R.string.change_date_hint),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
         }
 
-        // کارت وضعیت فعال بودن
-        // Active Status Card
-        Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors =
-                        CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        Column(
+                modifier = modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Row(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                            text = stringResource(R.string.subscription_status_label),
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurface
-                    )
+                // کارت انتخاب تاریخ
+                // Date Selector Card
+                Card(
+                        modifier = Modifier.fillMaxWidth().clickable { showDatePicker = true },
+                        colors =
+                                CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                                Text(
+                                        text = stringResource(R.string.next_renewal_date_label),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Medium,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                )
 
-                    Text(
-                            text =
-                                    if (uiState.isActive) stringResource(R.string.active)
-                                    else stringResource(R.string.inactive),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Text(
+                                        text =
+                                                with(uiState.nextRenewalDate) {
+                                                        val localDate =
+                                                                this.toInstant()
+                                                                        .atZone(
+                                                                                java.time.ZoneId
+                                                                                        .systemDefault()
+                                                                        )
+                                                                        .toLocalDate()
+                                                        val jalaliDate =
+                                                                ir.dekot.eshterakyar.core.domain
+                                                                        .utils.DateConverter
+                                                                        .toJalali(localDate)
+                                                        "${jalaliDate.day} ${jalaliDate.monthName()} ${jalaliDate.year}"
+                                                },
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Text(
+                                        text = stringResource(R.string.change_date_hint),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                        }
                 }
 
-                Switch(checked = uiState.isActive, onCheckedChange = onActiveChange)
-            }
+                // کارت وضعیت فعال بودن
+                // Active Status Card
+                Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors =
+                                CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                        Row(
+                                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                        ) {
+                                Column {
+                                        Text(
+                                                text =
+                                                        stringResource(
+                                                                R.string.subscription_status_label
+                                                        ),
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                fontWeight = FontWeight.Medium,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                        )
+
+                                        Text(
+                                                text =
+                                                        if (uiState.isActive)
+                                                                stringResource(R.string.active)
+                                                        else stringResource(R.string.inactive),
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                }
+
+                                Switch(checked = uiState.isActive, onCheckedChange = onActiveChange)
+                        }
+                }
         }
-    }
 }

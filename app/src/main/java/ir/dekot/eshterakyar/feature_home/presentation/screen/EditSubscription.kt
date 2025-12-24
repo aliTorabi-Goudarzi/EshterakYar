@@ -1,5 +1,6 @@
 package ir.dekot.eshterakyar.feature_home.presentation.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -358,10 +359,43 @@ private fun DateSelectorCard(
         onDateChange: (Date) -> Unit,
         modifier: Modifier = Modifier
 ) {
+    var showDatePicker by remember { mutableStateOf(false) }
     val theme = LocalTheme.current
 
+    if (showDatePicker) {
+        val initialJalaliDate =
+                remember(selectedDate) {
+                    val localDate =
+                            selectedDate
+                                    .toInstant()
+                                    .atZone(java.time.ZoneId.systemDefault())
+                                    .toLocalDate()
+                    ir.dekot.eshterakyar.core.domain.utils.DateConverter.toJalali(localDate)
+                }
+
+        ir.dekot.eshterakyar.core.presentation.components.JalaliDatePickerDialog(
+                onDismissRequest = { showDatePicker = false },
+                onDateChange = { jalaliDate ->
+                    val localDate =
+                            ir.dekot.eshterakyar.core.domain.utils.DateConverter.toGregorian(
+                                    jalaliDate
+                            )
+                    val date =
+                            java.util.Date.from(
+                                    localDate
+                                            .atStartOfDay(java.time.ZoneId.systemDefault())
+                                            .toInstant()
+                            )
+                    onDateChange(date)
+                    showDatePicker = false
+                },
+                initialDate = initialJalaliDate,
+                title = "تاریخ تمدید بعدی"
+        )
+    }
+
     Card(
-            modifier = modifier,
+            modifier = modifier.clickable { showDatePicker = true },
             colors = CardDefaults.cardColors(containerColor = theme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -393,10 +427,8 @@ private fun DateSelectorCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // For now, just display the date. In a real implementation,
-            // you would add a date picker here
             Text(
-                    text = "برای تغییر تاریخ، از تقویم استفاده کنید",
+                    text = "برای تغییر تاریخ کلیک کنید",
                     style = MaterialTheme.typography.bodySmall,
                     color = theme.onSurfaceVariant
             )
