@@ -31,12 +31,12 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlin { // Or tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>()
         compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11) // Or your specific JVM version
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) // Or your specific JVM version
             // You can add other Kotlin compiler options here if needed
             // e.g., freeCompilerArgs.add("-X opt-in=kotlin.RequiresOptIn")
         }
@@ -45,6 +45,7 @@ android {
         compose = true
     }
 }
+
 
 dependencies {
     // BoMs
