@@ -41,73 +41,62 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.SubscriptionCategory
+import java.util.Date
 import sv.lib.squircleshape.CornerSmoothing
 import sv.lib.squircleshape.SquircleShape
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @Composable
 fun SubscriptionCard(
-    subscription: Subscription,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit = {},
-    onEdit: () -> Unit = {},
-    onDelete: () -> Unit = {},
-    onToggleStatus: () -> Unit = {}
+        subscription: Subscription,
+        modifier: Modifier = Modifier,
+        onClick: () -> Unit = {},
+        onEdit: () -> Unit = {},
+        onDelete: () -> Unit = {},
+        onToggleStatus: () -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = if (subscription.isActive)
-                MaterialTheme.colorScheme.surface
-            else
-                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
-        ),
-        shape = SquircleShape(
-            radius = 20.dp,
-            smoothing = CornerSmoothing.Medium
-        )
+            modifier = modifier.fillMaxWidth().clickable { onClick() },
+            colors =
+                    CardDefaults.cardColors(
+                            containerColor =
+                                    if (subscription.isActive) MaterialTheme.colorScheme.surface
+                                    else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+                    ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            shape = SquircleShape(radius = 20.dp, smoothing = CornerSmoothing.Medium)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
+        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             // Header with icon and menu
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
             ) {
                 // Icon and name
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     // Icon placeholder
                     Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(CircleShape)
-                            .background(
-                                color = Color(subscription.colorCode.toColorInt()),
-                                shape = CircleShape
-                            ),
-                        contentAlignment = Alignment.Center
+                            modifier =
+                                    Modifier.size(48.dp)
+                                            .clip(CircleShape)
+                                            .background(
+                                                    color =
+                                                            Color(
+                                                                    subscription.colorCode
+                                                                            .toColorInt()
+                                                            ),
+                                                    shape = CircleShape
+                                            ),
+                            contentAlignment = Alignment.Center
                     ) {
                         // Could use subscription.icon here if available
                         Icon(
-                            imageVector = getCategoryIcon(subscription.category),
-                            contentDescription = subscription.name,
-                            tint = Color.White,
-                            modifier = Modifier.size(24.dp)
+                                imageVector = getCategoryIcon(subscription.category),
+                                contentDescription = subscription.name,
+                                tint = Color.White,
+                                modifier = Modifier.size(24.dp)
                         )
                     }
 
@@ -115,17 +104,17 @@ fun SubscriptionCard(
 
                     Column {
                         Text(
-                            text = subscription.name,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                                text = subscription.name,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                         )
 
                         Text(
-                            text = subscription.category.persianName,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                text = subscription.category.persianName,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -133,36 +122,32 @@ fun SubscriptionCard(
                 // Menu button
                 Box {
                     IconButton(onClick = { expanded = true }) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = "Menu"
-                        )
+                        Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Menu")
                     }
 
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
+                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         DropdownMenuItem(
-                            text = { Text(if (subscription.isActive) "غیرفعال کردن" else "فعال کردن") },
-                            onClick = {
-                                expanded = false
-                                onToggleStatus()
-                            }
+                                text = {
+                                    Text(if (subscription.isActive) "غیرفعال کردن" else "فعال کردن")
+                                },
+                                onClick = {
+                                    expanded = false
+                                    onToggleStatus()
+                                }
                         )
                         DropdownMenuItem(
-                            text = { Text("ویرایش") },
-                            onClick = {
-                                expanded = false
-                                onEdit()
-                            }
+                                text = { Text("ویرایش") },
+                                onClick = {
+                                    expanded = false
+                                    onEdit()
+                                }
                         )
                         DropdownMenuItem(
-                            text = { Text("حذف") },
-                            onClick = {
-                                expanded = false
-                                onDelete()
-                            }
+                                text = { Text("حذف") },
+                                onClick = {
+                                    expanded = false
+                                    onDelete()
+                                }
                         )
                     }
                 }
@@ -172,38 +157,36 @@ fun SubscriptionCard(
 
             // Price and renewal info
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
                     Text(
-                        text = formatPrice(subscription.price, subscription.currency),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                            text = formatPrice(subscription.price, subscription.currency),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
                     )
 
                     Text(
-                        text = subscription.billingCycle.persianName,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = subscription.billingCycle.persianName,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
-                Column(
-                    horizontalAlignment = Alignment.End
-                ) {
+                Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = "بعدی تمدید:",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = "بعدی تمدید:",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Text(
-                        text = formatDate(subscription.nextRenewalDate),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium
+                            text = formatDate(subscription.nextRenewalDate),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium
                     )
                 }
             }
@@ -212,50 +195,45 @@ fun SubscriptionCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
             ) {
                 // Status indicator
-                val statusColor by animateColorAsState(
-                    targetValue = if (subscription.isActive)
-                        Color(0xFF4CAF50) // Green
-                    else
-                        Color(0xFF9E9E9E) // Gray
-                )
+                val statusColor by
+                        animateColorAsState(
+                                targetValue =
+                                        if (subscription.isActive) Color(0xFF4CAF50) // Green
+                                        else Color(0xFF9E9E9E) // Gray
+                        )
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .clip(CircleShape)
-                            .background(statusColor)
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(statusColor))
 
                     Spacer(modifier = Modifier.width(6.dp))
 
                     Text(
-                        text = if (subscription.isActive) "فعال" else "غیرفعال",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = statusColor
+                            text = if (subscription.isActive) "فعال" else "غیرفعال",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = statusColor
                     )
                 }
 
                 // Days until renewal
                 val daysUntilRenewal = calculateDaysUntilRenewal(subscription.nextRenewalDate)
-                val renewalColor = when {
-                    daysUntilRenewal <= 3 -> Color(0xFFF44336) // Red
-                    daysUntilRenewal <= 7 -> Color(0xFFFF9800) // Orange
-                    else -> MaterialTheme.colorScheme.onSurfaceVariant
-                }
+                val renewalColor =
+                        when {
+                            daysUntilRenewal <= 3 -> Color(0xFFF44336) // Red
+                            daysUntilRenewal <= 7 -> Color(0xFFFF9800) // Orange
+                            else -> MaterialTheme.colorScheme.onSurfaceVariant
+                        }
 
                 Text(
-                    text = "$daysUntilRenewal روز دیگر",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = renewalColor,
-                    fontWeight = if (daysUntilRenewal <= 3) FontWeight.Bold else FontWeight.Normal
+                        text = "$daysUntilRenewal روز دیگر",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = renewalColor,
+                        fontWeight =
+                                if (daysUntilRenewal <= 3) FontWeight.Bold else FontWeight.Normal
                 )
             }
         }
@@ -286,8 +264,9 @@ private fun formatPrice(price: Double, currency: String): String {
 }
 
 private fun formatDate(date: Date): String {
-    val formatter = SimpleDateFormat("dd MMM yyyy", Locale("fa", "IR"))
-    return formatter.format(date)
+    val localDate = date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+    val jalaliDate = ir.dekot.eshterakyar.core.domain.utils.DateConverter.toJalali(localDate)
+    return "${jalaliDate.day} ${jalaliDate.monthName()} ${jalaliDate.year}"
 }
 
 private fun calculateDaysUntilRenewal(date: Date): Int {

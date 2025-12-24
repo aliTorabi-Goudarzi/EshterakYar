@@ -15,46 +15,39 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription
 import java.text.NumberFormat
-import java.text.SimpleDateFormat
 import java.util.Locale
 
 @Composable
 fun SubscriptionItem(
-    subscription: Subscription,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+        subscription: Subscription,
+        onClick: () -> Unit,
+        modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            modifier = modifier.fillMaxWidth().clickable(onClick = onClick),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
         ) {
             // Icon
-            val color = try {
-                Color(subscription.colorCode.toColorInt())
-            } catch (e: Exception) {
-                MaterialTheme.colorScheme.primary
-            }
+            val color =
+                    try {
+                        Color(subscription.colorCode.toColorInt())
+                    } catch (e: Exception) {
+                        MaterialTheme.colorScheme.primary
+                    }
 
             Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(color),
-                contentAlignment = Alignment.Center
+                    modifier = Modifier.size(40.dp).clip(CircleShape).background(color),
+                    contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = subscription.name.take(1).uppercase(),
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
+                        text = subscription.name.take(1).uppercase(),
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
                 )
             }
 
@@ -63,30 +56,30 @@ fun SubscriptionItem(
             // Name and Category
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = subscription.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                        text = subscription.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = subscription.category.persianName,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = subscription.category.persianName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
             // Price and Date
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = formatPrice(subscription.price, subscription.currency),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                        text = formatPrice(subscription.price, subscription.currency),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = formatDate(subscription.nextRenewalDate),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = formatDate(subscription.nextRenewalDate),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -99,6 +92,7 @@ private fun formatPrice(price: Double, currency: String): String {
 }
 
 private fun formatDate(date: java.util.Date): String {
-    val formatter = SimpleDateFormat("dd MMM", Locale("fa", "IR"))
-    return formatter.format(date)
+    val localDate = date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+    val jalaliDate = ir.dekot.eshterakyar.core.domain.utils.DateConverter.toJalali(localDate)
+    return "${jalaliDate.day} ${jalaliDate.monthName()}"
 }

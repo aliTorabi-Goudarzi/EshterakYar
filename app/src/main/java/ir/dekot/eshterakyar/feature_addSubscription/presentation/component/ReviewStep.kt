@@ -14,90 +14,91 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ir.dekot.eshterakyar.R
 import ir.dekot.eshterakyar.feature_addSubscription.presentation.state.AddSubscriptionUiState
-import java.text.SimpleDateFormat
-import java.util.Locale
 
-/**
- * مرحله چهارم: بررسی نهایی و ذخیره
- * Step 4: Final Review and Save
- */
+/** مرحله چهارم: بررسی نهایی و ذخیره Step 4: Final Review and Save */
 @Composable
 fun ReviewStep(
-    uiState: AddSubscriptionUiState,
-    onConfirm: () -> Unit,
-    modifier: Modifier = Modifier
+        uiState: AddSubscriptionUiState,
+        onConfirm: () -> Unit,
+        modifier: Modifier = Modifier
 ) {
-    val formatter = SimpleDateFormat("dd MMM yyyy", Locale("fa", "IR"))
 
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         // عنوان بخش بررسی
         // Review section title
         Text(
-            text = stringResource(R.string.review_info),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
+                text = stringResource(R.string.review_info),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
         )
 
         // کارت خلاصه اطلاعات
         // Info Summary Card
         Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                modifier = Modifier.fillMaxWidth(),
+                colors =
+                        CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                ReviewItem(
-                    label = stringResource(R.string.subscription_name),
-                    value = uiState.name
-                )
-                
+                ReviewItem(label = stringResource(R.string.subscription_name), value = uiState.name)
+
                 HorizontalDivider(color = MaterialTheme.colorScheme.surface)
 
                 ReviewItem(
-                    label = stringResource(R.string.category_label),
-                    value = uiState.category.persianName
+                        label = stringResource(R.string.category_label),
+                        value = uiState.category.persianName
                 )
-                
+
                 HorizontalDivider(color = MaterialTheme.colorScheme.surface)
 
                 ReviewItem(
-                    label = stringResource(R.string.price_label),
-                    value = "${uiState.price} ${if (uiState.currency == "IRT") stringResource(R.string.toman) else stringResource(R.string.dollar)}"
+                        label = stringResource(R.string.price_label),
+                        value =
+                                "${uiState.price} ${if (uiState.currency == "IRT") stringResource(R.string.toman) else stringResource(R.string.dollar)}"
                 )
-                
+
                 HorizontalDivider(color = MaterialTheme.colorScheme.surface)
 
                 ReviewItem(
-                    label = stringResource(R.string.billing_cycle_label),
-                    value = uiState.billingCycle.persianName
+                        label = stringResource(R.string.billing_cycle_label),
+                        value = uiState.billingCycle.persianName
                 )
-                
+
                 HorizontalDivider(color = MaterialTheme.colorScheme.surface)
 
                 ReviewItem(
-                    label = stringResource(R.string.next_renewal_date_label),
-                    value = formatter.format(uiState.nextRenewalDate)
+                        label = stringResource(R.string.next_renewal_date_label),
+                        value =
+                                with(uiState.nextRenewalDate) {
+                                    val localDate =
+                                            this.toInstant()
+                                                    .atZone(java.time.ZoneId.systemDefault())
+                                                    .toLocalDate()
+                                    val jalaliDate =
+                                            ir.dekot.eshterakyar.core.domain.utils.DateConverter
+                                                    .toJalali(localDate)
+                                    "${jalaliDate.day} ${jalaliDate.monthName()} ${jalaliDate.year}"
+                                }
                 )
-                
+
                 HorizontalDivider(color = MaterialTheme.colorScheme.surface)
 
                 ReviewItem(
-                    label = stringResource(R.string.subscription_status_label),
-                    value = if (uiState.isActive) stringResource(R.string.active) else stringResource(R.string.inactive)
+                        label = stringResource(R.string.subscription_status_label),
+                        value =
+                                if (uiState.isActive) stringResource(R.string.active)
+                                else stringResource(R.string.inactive)
                 )
             }
         }
@@ -105,17 +106,15 @@ fun ReviewStep(
         // دکمه تایید و ذخیره
         // Confirm and Save Button
         Button(
-            onClick = onConfirm,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !uiState.isSaving
+                onClick = onConfirm,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isSaving
         ) {
             if (uiState.isSaving) {
                 CircularProgressIndicator(
-                    modifier = Modifier
-                        .size(20.dp)
-                        .padding(end = 8.dp),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    strokeWidth = 2.dp
+                        modifier = Modifier.size(20.dp).padding(end = 8.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        strokeWidth = 2.dp
                 )
             }
             Text(stringResource(R.string.confirm_and_save))
@@ -124,24 +123,18 @@ fun ReviewStep(
 }
 
 @Composable
-private fun ReviewItem(
-    label: String,
-    value: String
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
+private fun ReviewItem(label: String, value: String) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurface
+                text = value,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

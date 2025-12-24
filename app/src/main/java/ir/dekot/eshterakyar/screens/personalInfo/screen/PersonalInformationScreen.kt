@@ -25,15 +25,14 @@ import ir.dekot.eshterakyar.screens.personalInfo.mvi.PersonalInformationEffect
 import ir.dekot.eshterakyar.screens.personalInfo.mvi.PersonalInformationIntent
 import ir.dekot.eshterakyar.screens.personalInfo.mvi.PersonalInformationState
 import ir.dekot.eshterakyar.screens.personalInfo.viewmodel.PersonalInformationViewModel
+import java.util.*
 import org.koin.androidx.compose.koinViewModel
 import sv.lib.squircleshape.SquircleShape
-import java.text.SimpleDateFormat
-import java.util.*
 
 @Composable
 fun PersonalInformationRoute(
-    viewModel: PersonalInformationViewModel = koinViewModel(),
-    onNavigateBack: () -> Unit
+        viewModel: PersonalInformationViewModel = koinViewModel(),
+        onNavigateBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -50,147 +49,162 @@ fun PersonalInformationRoute(
     }
 
     PersonalInformationScreen(
-        uiState = uiState,
-        onIntent = viewModel::onIntent,
-        snackbarHostState = snackbarHostState
+            uiState = uiState,
+            onIntent = viewModel::onIntent,
+            snackbarHostState = snackbarHostState
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PersonalInformationScreen(
-    uiState: PersonalInformationState,
-    onIntent: (PersonalInformationIntent) -> Unit,
-    snackbarHostState: SnackbarHostState
+        uiState: PersonalInformationState,
+        onIntent: (PersonalInformationIntent) -> Unit,
+        snackbarHostState: SnackbarHostState
 ) {
     val theme = LocalTheme.current
-    val dateFormatter = remember { SimpleDateFormat("yyyy/MM/dd", Locale("fa", "IR")) }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("اطلاعات شخصی") },
-                navigationIcon = {
-                    IconButton(onClick = { onIntent(PersonalInformationIntent.NavigateBack) }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "بازگشت")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = theme.surface,
-                    titleContentColor = theme.onSurface
+            topBar = {
+                TopAppBar(
+                        title = { Text("اطلاعات شخصی") },
+                        navigationIcon = {
+                            IconButton(
+                                    onClick = { onIntent(PersonalInformationIntent.NavigateBack) }
+                            ) {
+                                Icon(
+                                        Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = "بازگشت"
+                                )
+                            }
+                        },
+                        colors =
+                                TopAppBarDefaults.topAppBarColors(
+                                        containerColor = theme.surface,
+                                        titleContentColor = theme.onSurface
+                                )
                 )
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { onIntent(PersonalInformationIntent.SaveUser) },
-                containerColor = theme.primary,
-                contentColor = theme.onPrimary,
-                shape = SquircleShape()
-            ) {
-                if (uiState.isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = theme.onPrimary,
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    Icon(Icons.Default.Save, contentDescription = "ذخیره")
+            },
+            floatingActionButton = {
+                FloatingActionButton(
+                        onClick = { onIntent(PersonalInformationIntent.SaveUser) },
+                        containerColor = theme.primary,
+                        contentColor = theme.onPrimary,
+                        shape = SquircleShape()
+                ) {
+                    if (uiState.isLoading) {
+                        CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = theme.onPrimary,
+                                strokeWidth = 2.dp
+                        )
+                    } else {
+                        Icon(Icons.Default.Save, contentDescription = "ذخیره")
+                    }
                 }
-            }
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = theme.background
+            },
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            containerColor = theme.background
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                modifier =
+                        Modifier.fillMaxSize()
+                                .padding(padding)
+                                .verticalScroll(rememberScrollState())
+                                .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Name
             OutlinedTextField(
-                value = uiState.name,
-                onValueChange = { onIntent(PersonalInformationIntent.UpdateName(it)) },
-                label = { Text("نام") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = SquircleShape(),
-                isError = uiState.nameError != null,
-                supportingText = uiState.nameError?.let { { Text(it) } },
-                singleLine = true
+                    value = uiState.name,
+                    onValueChange = { onIntent(PersonalInformationIntent.UpdateName(it)) },
+                    label = { Text("نام") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = SquircleShape(),
+                    isError = uiState.nameError != null,
+                    supportingText = uiState.nameError?.let { { Text(it) } },
+                    singleLine = true
             )
 
             // Last Name
             OutlinedTextField(
-                value = uiState.lastName,
-                onValueChange = { onIntent(PersonalInformationIntent.UpdateLastName(it)) },
-                label = { Text("نام خانوادگی") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = SquircleShape(),
-                isError = uiState.lastNameError != null,
-                supportingText = uiState.lastNameError?.let { { Text(it) } },
-                singleLine = true
+                    value = uiState.lastName,
+                    onValueChange = { onIntent(PersonalInformationIntent.UpdateLastName(it)) },
+                    label = { Text("نام خانوادگی") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = SquircleShape(),
+                    isError = uiState.lastNameError != null,
+                    supportingText = uiState.lastNameError?.let { { Text(it) } },
+                    singleLine = true
             )
 
             // Phone Number
             OutlinedTextField(
-                value = uiState.phoneNumber,
-                onValueChange = { onIntent(PersonalInformationIntent.UpdatePhoneNumber(it)) },
-                label = { Text("شماره تلفن") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = SquircleShape(),
-                isError = uiState.phoneNumberError != null,
-                supportingText = uiState.phoneNumberError?.let { { Text(it) } },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                singleLine = true,
-                visualTransformation = IranPhoneVisualTransformation()
+                    value = uiState.phoneNumber,
+                    onValueChange = { onIntent(PersonalInformationIntent.UpdatePhoneNumber(it)) },
+                    label = { Text("شماره تلفن") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = SquircleShape(),
+                    isError = uiState.phoneNumberError != null,
+                    supportingText = uiState.phoneNumberError?.let { { Text(it) } },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    singleLine = true,
+                    visualTransformation = IranPhoneVisualTransformation()
             )
 
             // Account Creation Date (View Only)
             uiState.accountCreationDate?.let { date ->
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = SquircleShape(),
-                    colors = CardDefaults.cardColors(containerColor = theme.surfaceVariant)
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = SquircleShape(),
+                        colors = CardDefaults.cardColors(containerColor = theme.surfaceVariant)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "تاریخ ایجاد حساب",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = theme.onSurfaceVariant
+                                text = "تاریخ ایجاد حساب",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = theme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = dateFormatter.format(date),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = theme.onSurface
+                                text =
+                                        with(date) {
+                                            val localDate =
+                                                    this.toInstant()
+                                                            .atZone(
+                                                                    java.time.ZoneId.systemDefault()
+                                                            )
+                                                            .toLocalDate()
+                                            val jalaliDate =
+                                                    ir.dekot.eshterakyar.core.domain.utils
+                                                            .DateConverter.toJalali(localDate)
+                                            "${jalaliDate.year}/${jalaliDate.month.toString().padStart(2, '0')}/${jalaliDate.day.toString().padStart(2, '0')}"
+                                        },
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = theme.onSurface
                         )
                     }
                 }
             }
-            
+
             if (uiState.error != null) {
                 Text(
-                    text = uiState.error,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(horizontal = 8.dp)
+                        text = uiState.error,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(horizontal = 8.dp)
                 )
             }
         }
     }
 }
 
-/**
- * تبدیل‌گر بصری برای شماره تلفن همراه ایران به فرمت: +98 9XX XXX XX XX
- */
+/** تبدیل‌گر بصری برای شماره تلفن همراه ایران به فرمت: +98 9XX XXX XX XX */
 class IranPhoneVisualTransformation : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         val raw = text.text
         val out = StringBuilder("+98 ")
-        
+
         for (i in raw.indices) {
             out.append(raw[i])
             // فرمت: 912 345 67 89
@@ -198,36 +212,38 @@ class IranPhoneVisualTransformation : VisualTransformation {
                 if (i != raw.lastIndex) out.append(" ")
             }
         }
-        
-        val transformed = out.toString()
-        
-        val offsetMapping = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int): Int {
-                // پیشوند "+98 " دارای ۴ کاراکتر است.
-                if (offset <= 0) return 4
-                var spaceCount = 0
-                if (offset > 3) spaceCount++
-                if (offset > 6) spaceCount++
-                if (offset > 8) spaceCount++
-                
-                return offset + 4 + spaceCount
-            }
 
-            override fun transformedToOriginal(offset: Int): Int {
-                // معکوس نگاشت بالا
-                if (offset <= 4) return 0
-                var spaceCount = 0
-                // مکان فضاهای خالی در متن تغییر یافته (با احتساب پیشوند ۴ کاراکتری):
-                // کاراکتر ۷ (بعد از رقم ۳ام)، کاراکتر ۱۱ (بعد از رقم ۶ام)، کاراکتر ۱۴ (بعد از رقم ۸ام)
-                if (offset > 7) spaceCount++
-                if (offset > 11) spaceCount++
-                if (offset > 14) spaceCount++
-                
-                val original = offset - 4 - spaceCount
-                return original.coerceIn(0, raw.length)
-            }
-        }
-        
+        val transformed = out.toString()
+
+        val offsetMapping =
+                object : OffsetMapping {
+                    override fun originalToTransformed(offset: Int): Int {
+                        // پیشوند "+98 " دارای ۴ کاراکتر است.
+                        if (offset <= 0) return 4
+                        var spaceCount = 0
+                        if (offset > 3) spaceCount++
+                        if (offset > 6) spaceCount++
+                        if (offset > 8) spaceCount++
+
+                        return offset + 4 + spaceCount
+                    }
+
+                    override fun transformedToOriginal(offset: Int): Int {
+                        // معکوس نگاشت بالا
+                        if (offset <= 4) return 0
+                        var spaceCount = 0
+                        // مکان فضاهای خالی در متن تغییر یافته (با احتساب پیشوند ۴ کاراکتری):
+                        // کاراکتر ۷ (بعد از رقم ۳ام)، کاراکتر ۱۱ (بعد از رقم ۶ام)، کاراکتر ۱۴ (بعد
+                        // از رقم ۸ام)
+                        if (offset > 7) spaceCount++
+                        if (offset > 11) spaceCount++
+                        if (offset > 14) spaceCount++
+
+                        val original = offset - 4 - spaceCount
+                        return original.coerceIn(0, raw.length)
+                    }
+                }
+
         return TransformedText(AnnotatedString(transformed), offsetMapping)
     }
 }
@@ -236,13 +252,14 @@ class IranPhoneVisualTransformation : VisualTransformation {
 @Composable
 fun PersonalInformationScreenPreview() {
     PersonalInformationScreen(
-        uiState = PersonalInformationState(
-            name = "علی",
-            lastName = "ترابی",
-            phoneNumber = "9123456789",
-            accountCreationDate = Date()
-        ),
-        onIntent = {},
-        snackbarHostState = remember { SnackbarHostState() }
+            uiState =
+                    PersonalInformationState(
+                            name = "علی",
+                            lastName = "ترابی",
+                            phoneNumber = "9123456789",
+                            accountCreationDate = Date()
+                    ),
+            onIntent = {},
+            snackbarHostState = remember { SnackbarHostState() }
     )
 }
