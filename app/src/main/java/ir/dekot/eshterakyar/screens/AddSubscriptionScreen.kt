@@ -76,19 +76,19 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddSubscriptionScreen(
-    viewModel: AddSubscriptionViewModel = koinViewModel(),
-    onEditSubscription: (Long) -> Unit
+        viewModel: AddSubscriptionViewModel = koinViewModel(),
+        onEditSubscription: (Long) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val theme = LocalTheme.current
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState()
-    
+
     // وضعیت نمایش فرم
     // Form visibility state
     var isFormExpanded by remember { mutableStateOf(false) }
-    
+
     // مدیریت ذخیره موفق با انیمیشن
     // Handle successful save with animation
     LaunchedEffect(uiState.saveSuccess) {
@@ -97,18 +97,18 @@ fun AddSubscriptionScreen(
             // Collapse the form
             delay(300)
             isFormExpanded = false
-            
+
             // نمایش پیام موفقیت
             // Show success snackbar
             delay(500)
             coroutineScope.launch {
                 snackbarHostState.showSnackbar(
-                    message = "اشتراک با موفقیت اضافه شد",
-                    actionLabel = null,
-                    withDismissAction = true
+                        message = "اشتراک با موفقیت اضافه شد",
+                        actionLabel = null,
+                        withDismissAction = true
                 )
             }
-            
+
             // ریست کردن وضعیت‌ها
             // Reset states
             delay(1000)
@@ -124,92 +124,109 @@ fun AddSubscriptionScreen(
             // Show error snackbar
             coroutineScope.launch {
                 snackbarHostState.showSnackbar(
-                    message = "خطا: ${uiState.error}",
-                    actionLabel = null,
-                    withDismissAction = true
+                        message = "خطا: ${uiState.error}",
+                        actionLabel = null,
+                        withDismissAction = true
                 )
             }
             viewModel.onIntent(AddSubscriptionIntent.OnErrorDismissed)
         }
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
             Spacer(modifier = Modifier.height(30.dp))
             // ناحیه اصلی محتوا
             // Main content area
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top
+                    modifier = Modifier.fillMaxSize().weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top
             ) {
                 // نمایش دکمه و متن فقط وقتی فرم بسته است
                 // Show button and text only when form is collapsed
                 AnimatedVisibility(visible = !isFormExpanded) {
                     Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(top = 24.dp)
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(top = 24.dp)
                     ) {
                         Text(
-                            text = stringResource(R.string.click_to_add_subscription),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = theme.onSurfaceVariant,
-                            modifier = Modifier.padding(16.dp)
+                                text = stringResource(R.string.click_to_add_subscription),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = theme.onSurfaceVariant,
+                                modifier = Modifier.padding(16.dp)
                         )
-                        
+
                         Spacer(modifier = Modifier.height(16.dp))
-                        
+
                         // دکمه افزودن
                         // Add Button
                         Button(
-                            onClick = { isFormExpanded = true },
-                            modifier = Modifier.padding(horizontal = 16.dp)
+                                onClick = { isFormExpanded = true },
+                                modifier = Modifier.padding(horizontal = 16.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = stringResource(R.string.add_subscription_action),
-                                modifier = Modifier.size(20.dp)
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription =
+                                            stringResource(R.string.add_subscription_action),
+                                    modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.padding(horizontal = 8.dp))
                             Text(stringResource(R.string.add_subscription_action))
                         }
                     }
                 }
-                
+
                 // کانتینر انیمیشن فرم
                 // Animated form container
                 AnimatedVisibility(
-                    visible = isFormExpanded,
-                    enter = slideInVertically(
-                        initialOffsetY = { fullHeight -> -fullHeight / 4 },
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessMedium
-                        )
-                    ) + expandVertically(
-                        animationSpec = tween(300, easing = androidx.compose.animation.core.EaseOutQuart)
-                    ) + fadeIn(animationSpec = tween(300)),
-                    exit = slideOutVertically(
-                        targetOffsetY = { fullHeight -> -fullHeight / 4 },
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessMedium
-                        )
-                    ) + shrinkVertically(
-                        animationSpec = tween(300, easing = androidx.compose.animation.core.EaseInQuart)
-                    ) + fadeOut(animationSpec = tween(300))
+                        visible = isFormExpanded,
+                        enter =
+                                slideInVertically(
+                                        initialOffsetY = { fullHeight -> -fullHeight / 4 },
+                                        animationSpec =
+                                                spring(
+                                                        dampingRatio =
+                                                                Spring.DampingRatioMediumBouncy,
+                                                        stiffness = Spring.StiffnessMedium
+                                                )
+                                ) +
+                                        expandVertically(
+                                                animationSpec =
+                                                        tween(
+                                                                300,
+                                                                easing =
+                                                                        androidx.compose.animation
+                                                                                .core.EaseOutQuart
+                                                        )
+                                        ) +
+                                        fadeIn(animationSpec = tween(300)),
+                        exit =
+                                slideOutVertically(
+                                        targetOffsetY = { fullHeight -> -fullHeight / 4 },
+                                        animationSpec =
+                                                spring(
+                                                        dampingRatio =
+                                                                Spring.DampingRatioMediumBouncy,
+                                                        stiffness = Spring.StiffnessMedium
+                                                )
+                                ) +
+                                        shrinkVertically(
+                                                animationSpec =
+                                                        tween(
+                                                                300,
+                                                                easing =
+                                                                        androidx.compose.animation
+                                                                                .core.EaseInQuart
+                                                        )
+                                        ) +
+                                        fadeOut(animationSpec = tween(300))
                 ) {
                     AddSubscriptionStepper(
-                        uiState = uiState,
-                        onIntent = viewModel::onIntent,
-                        onCancel = { isFormExpanded = false },
-                        modifier = Modifier.padding(16.dp)
+                            uiState = uiState,
+                            onIntent = viewModel::onIntent,
+                            onCancel = { isFormExpanded = false },
+                            modifier = Modifier.padding(16.dp)
                     )
                 }
 
@@ -218,14 +235,20 @@ fun AddSubscriptionScreen(
                 if (uiState.subscriptions.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(16.dp))
                     LazyColumn(
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth()
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
                     ) {
                         items(uiState.subscriptions, key = { it.id }) { subscription ->
                             SubscriptionItem(
-                                subscription = subscription,
-                                onClick = { viewModel.onIntent(AddSubscriptionIntent.OnSubscriptionClicked(subscription)) }
+                                    subscription = subscription,
+                                    onClick = {
+                                        viewModel.onIntent(
+                                                AddSubscriptionIntent.OnSubscriptionClicked(
+                                                        subscription
+                                                )
+                                        )
+                                    }
                             )
                         }
                         // فضای خالی پایین لیست برای دیده شدن آیتم‌های آخر
@@ -235,19 +258,17 @@ fun AddSubscriptionScreen(
                 }
             }
         }
-        
+
         // محل نمایش اسنک‌بار در پایین
         // Snackbar host at bottom
         SnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 80.dp)
+                hostState = snackbarHostState,
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 80.dp)
         ) { data ->
             CustomSnackbar(
-                message = data.visuals.message,
-                isError = uiState.error != null,
-                onDismiss = { data.dismiss() }
+                    message = data.visuals.message,
+                    isError = uiState.error != null,
+                    onDismiss = { data.dismiss() }
             )
         }
     }
@@ -256,15 +277,17 @@ fun AddSubscriptionScreen(
     // Subscription Detail Bottom Sheet
     if (uiState.isBottomSheetOpen && uiState.selectedSubscription != null) {
         SubscriptionDetailBottomSheet(
-            subscription = uiState.selectedSubscription!!,
-            onEditClick = {
-                val sub = uiState.selectedSubscription!!
-                viewModel.onIntent(AddSubscriptionIntent.OnEditClicked(sub))
-                onEditSubscription(sub.id)
-            },
-            onDeleteClick = { viewModel.onIntent(AddSubscriptionIntent.OnDeleteClicked) },
-            onDismissRequest = { viewModel.onIntent(AddSubscriptionIntent.OnBottomSheetDismissed) },
-            sheetState = sheetState
+                subscription = uiState.selectedSubscription!!,
+                onEditClick = {
+                    val sub = uiState.selectedSubscription!!
+                    viewModel.onIntent(AddSubscriptionIntent.OnEditClicked(sub))
+                    onEditSubscription(sub.id)
+                },
+                onDeleteClick = { viewModel.onIntent(AddSubscriptionIntent.OnDeleteClicked) },
+                onDismissRequest = {
+                    viewModel.onIntent(AddSubscriptionIntent.OnBottomSheetDismissed)
+                },
+                sheetState = sheetState
         )
     }
 
@@ -272,107 +295,132 @@ fun AddSubscriptionScreen(
     // Delete Confirmation Dialog
     if (uiState.isDeleteDialogVisible) {
         AlertDialog(
-            onDismissRequest = { viewModel.onIntent(AddSubscriptionIntent.OnDeleteCancelled) },
-            title = { Text(stringResource(R.string.delete_confirmation_title)) },
-            text = { Text(stringResource(R.string.delete_confirmation_message)) },
-            confirmButton = {
-                TextButton(onClick = { viewModel.onIntent(AddSubscriptionIntent.OnDeleteConfirmed) }) {
-                    Text(stringResource(R.string.delete_action), color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { viewModel.onIntent(AddSubscriptionIntent.OnDeleteCancelled) }) {
-                    Text(stringResource(R.string.cancel_action))
-                }
-            },
-            containerColor = theme.surface,
-            titleContentColor = theme.onSurface,
-            textContentColor = theme.onSurfaceVariant
+                onDismissRequest = { viewModel.onIntent(AddSubscriptionIntent.OnDeleteCancelled) },
+                title = { Text(stringResource(R.string.delete_confirmation_title)) },
+                text = { Text(stringResource(R.string.delete_confirmation_message)) },
+                confirmButton = {
+                    TextButton(
+                            onClick = {
+                                viewModel.onIntent(AddSubscriptionIntent.OnDeleteConfirmed)
+                            }
+                    ) {
+                        Text(
+                                stringResource(R.string.delete_action),
+                                color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                            onClick = {
+                                viewModel.onIntent(AddSubscriptionIntent.OnDeleteCancelled)
+                            }
+                    ) { Text(stringResource(R.string.cancel_action)) }
+                },
+                containerColor = theme.surface,
+                titleContentColor = theme.onSurface,
+                textContentColor = theme.onSurfaceVariant
         )
     }
 }
 
-
 @Composable
 private fun AddSubscriptionStepper(
-    uiState: AddSubscriptionUiState,
-    onIntent: (AddSubscriptionIntent) -> Unit,
-    onCancel: () -> Unit,
-    modifier: Modifier = Modifier
+        uiState: AddSubscriptionUiState,
+        onIntent: (AddSubscriptionIntent) -> Unit,
+        onCancel: () -> Unit,
+        modifier: Modifier = Modifier
 ) {
     val theme = LocalTheme.current
-    
+
     Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = theme.surface,
-            contentColor = theme.onSurface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        shape = MaterialTheme.shapes.extraLarge
+            modifier = modifier,
+            colors =
+                    CardDefaults.cardColors(
+                            containerColor = theme.surface,
+                            contentColor = theme.onSurface
+                    ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+            shape = MaterialTheme.shapes.extraLarge
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier.fillMaxWidth().padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // هدر با دکمه بستن
             // Header with Close button
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(R.string.add_new_subscription),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = theme.onSurface
+                        text = stringResource(R.string.add_new_subscription),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = theme.onSurface
                 )
                 IconButton(onClick = onCancel) {
                     Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(R.string.close_action),
-                        tint = theme.onSurfaceVariant
+                            imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(R.string.close_action),
+                            tint = theme.onSurfaceVariant
                     )
                 }
             }
 
             // نمایشگر مرحله
             // Step Indicator
-            StepIndicator(
-                currentStep = uiState.currentStep,
-                totalSteps = 4
-            )
+            StepIndicator(currentStep = uiState.currentStep, totalSteps = 4)
 
             // محتوای مرحله
             // Step Content
             StepContainer(
-                currentStep = uiState.currentStep,
-                modifier = Modifier.weight(1f, fill = false) 
+                    currentStep = uiState.currentStep,
+                    modifier = Modifier.weight(1f, fill = false)
             ) { step ->
                 when (step) {
-                    1 -> BasicInfoStep(
-                        uiState = uiState,
-                        onNameChange = { onIntent(AddSubscriptionIntent.OnNameChanged(it)) },
-                        onCategoryChange = { onIntent(AddSubscriptionIntent.OnCategoryChanged(it)) }
-                    )
-                    2 -> PaymentStep(
-                        uiState = uiState,
-                        onPriceChange = { onIntent(AddSubscriptionIntent.OnPriceChanged(it)) },
-                        onCurrencyChange = { onIntent(AddSubscriptionIntent.OnCurrencyChanged(it)) },
-                        onBillingCycleChange = { onIntent(AddSubscriptionIntent.OnBillingCycleChanged(it)) }
-                    )
-                    3 -> ScheduleStep(
-                        uiState = uiState,
-                        onDateChange = { onIntent(AddSubscriptionIntent.OnNextRenewalDateChanged(it)) },
-                        onActiveChange = { onIntent(AddSubscriptionIntent.OnActiveStatusChanged(it)) }
-                    )
-                    4 -> ReviewStep(
-                        uiState = uiState,
-                        onConfirm = { onIntent(AddSubscriptionIntent.OnSaveClicked) }
-                    )
+                    1 ->
+                            BasicInfoStep(
+                                    uiState = uiState,
+                                    onNameChange = {
+                                        onIntent(AddSubscriptionIntent.OnNameChanged(it))
+                                    },
+                                    onCategoryChange = {
+                                        onIntent(AddSubscriptionIntent.OnCategoryChanged(it))
+                                    },
+                                    onPresetSelected = {
+                                        onIntent(AddSubscriptionIntent.OnPresetSelected(it))
+                                    }
+                            )
+                    2 ->
+                            PaymentStep(
+                                    uiState = uiState,
+                                    onPriceChange = {
+                                        onIntent(AddSubscriptionIntent.OnPriceChanged(it))
+                                    },
+                                    onCurrencyChange = {
+                                        onIntent(AddSubscriptionIntent.OnCurrencyChanged(it))
+                                    },
+                                    onBillingCycleChange = {
+                                        onIntent(AddSubscriptionIntent.OnBillingCycleChanged(it))
+                                    }
+                            )
+                    3 ->
+                            ScheduleStep(
+                                    uiState = uiState,
+                                    onDateChange = {
+                                        onIntent(AddSubscriptionIntent.OnNextRenewalDateChanged(it))
+                                    },
+                                    onActiveChange = {
+                                        onIntent(AddSubscriptionIntent.OnActiveStatusChanged(it))
+                                    }
+                            )
+                    4 ->
+                            ReviewStep(
+                                    uiState = uiState,
+                                    onConfirm = { onIntent(AddSubscriptionIntent.OnSaveClicked) }
+                            )
                 }
             }
 
@@ -380,39 +428,38 @@ private fun AddSubscriptionStepper(
             // Navigation Buttons (Only for steps 1-3)
             if (uiState.currentStep < 4) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     // دکمه قبلی / انصراف
                     // Previous / Cancel Button
                     Button(
-                        onClick = {
-                            if (uiState.currentStep > 1) {
-                                onIntent(AddSubscriptionIntent.OnPreviousStep)
-                            } else {
-                                onCancel()
-                            }
-                        },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = theme.surfaceVariant,
-                            contentColor = theme.onSurfaceVariant
-                        )
+                            onClick = {
+                                if (uiState.currentStep > 1) {
+                                    onIntent(AddSubscriptionIntent.OnPreviousStep)
+                                } else {
+                                    onCancel()
+                                }
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors =
+                                    ButtonDefaults.buttonColors(
+                                            containerColor = theme.surfaceVariant,
+                                            contentColor = theme.onSurfaceVariant
+                                    )
                     ) {
                         Text(
-                            if (uiState.currentStep > 1) stringResource(R.string.previous_step) 
-                            else stringResource(R.string.cancel_action)
+                                if (uiState.currentStep > 1) stringResource(R.string.previous_step)
+                                else stringResource(R.string.cancel_action)
                         )
                     }
 
                     // دکمه بعدی
                     // Next Button
                     Button(
-                        onClick = { onIntent(AddSubscriptionIntent.OnNextStep) },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(stringResource(R.string.next_step))
-                    }
+                            onClick = { onIntent(AddSubscriptionIntent.OnNextStep) },
+                            modifier = Modifier.weight(1f)
+                    ) { Text(stringResource(R.string.next_step)) }
                 }
             }
         }
@@ -420,55 +467,39 @@ private fun AddSubscriptionStepper(
 }
 
 @Composable
-private fun CustomSnackbar(
-    message: String,
-    isError: Boolean,
-    onDismiss: () -> Unit
-) {
+private fun CustomSnackbar(message: String, isError: Boolean, onDismiss: () -> Unit) {
     val theme = LocalTheme.current
-    
+
     Snackbar(
-        modifier = Modifier.padding(16.dp),
-        containerColor = if (isError) 
-            theme.error 
-        else 
-            theme.primaryContainer,
-        contentColor = if (isError) 
-            theme.onError 
-        else 
-            theme.onPrimaryContainer,
-        action = {
-            IconButton(
-                onClick = { onDismiss() },
-                modifier = Modifier.size(24.dp)
-            ) {
-                Icon(
-                    imageVector = if (isError) Icons.Default.Close else Icons.Default.Check,
-                    contentDescription = stringResource(R.string.close_action),
-                    tint = if (isError) 
-                        theme.onError 
-                    else 
-                        theme.onPrimaryContainer
-                )
+            modifier = Modifier.padding(16.dp),
+            containerColor = if (isError) theme.error else theme.primaryContainer,
+            contentColor = if (isError) theme.onError else theme.onPrimaryContainer,
+            action = {
+                IconButton(onClick = { onDismiss() }, modifier = Modifier.size(24.dp)) {
+                    Icon(
+                            imageVector = if (isError) Icons.Default.Close else Icons.Default.Check,
+                            contentDescription = stringResource(R.string.close_action),
+                            tint = if (isError) theme.onError else theme.onPrimaryContainer
+                    )
+                }
             }
-        }
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             if (isError) {
                 Icon(
-                    imageVector = Icons.Default.Error,
-                    contentDescription = "خطا",
-                    modifier = Modifier.size(20.dp),
-                    tint = theme.onError
+                        imageVector = Icons.Default.Error,
+                        contentDescription = "خطا",
+                        modifier = Modifier.size(20.dp),
+                        tint = theme.onError
                 )
             }
             Text(
-                text = message,
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (isError) theme.onError else theme.onPrimaryContainer
+                    text = message,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (isError) theme.onError else theme.onPrimaryContainer
             )
         }
     }

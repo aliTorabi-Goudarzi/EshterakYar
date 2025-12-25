@@ -97,4 +97,8 @@ class SubscriptionRepositoryImpl(private val subscriptionDao: SubscriptionDao) :
     override suspend fun getNearingRenewalSubscriptionsCount(reminderDate: Long): Int {
         return subscriptionDao.getNearingRenewalSubscriptionsCount(reminderDate)
     }
+
+    override suspend fun getNearestRenewalDate(): Long? {
+        return subscriptionDao.getNearestRenewalDate()
+    }
 }

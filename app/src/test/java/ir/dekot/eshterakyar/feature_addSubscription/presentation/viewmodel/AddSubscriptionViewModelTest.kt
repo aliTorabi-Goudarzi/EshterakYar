@@ -5,6 +5,7 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.DeleteSubscriptionUseCase
+import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetServicePresetsUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetSubscriptionsSortedByCreationUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.InsertSubscriptionUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.presentation.intent.AddSubscriptionIntent
@@ -27,24 +28,29 @@ class AddSubscriptionViewModelTest {
 
     private lateinit var viewModel: AddSubscriptionViewModel
     private val insertSubscriptionUseCase: InsertSubscriptionUseCase = mockk(relaxed = true)
-    private val getSubscriptionsSortedByCreationUseCase: GetSubscriptionsSortedByCreationUseCase = mockk()
+    private val getSubscriptionsSortedByCreationUseCase: GetSubscriptionsSortedByCreationUseCase =
+            mockk()
     private val deleteSubscriptionUseCase: DeleteSubscriptionUseCase = mockk(relaxed = true)
-    
+    private val getServicePresetsUseCase: GetServicePresetsUseCase = mockk()
+
     private val testDispatcher = StandardTestDispatcher()
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        
+
         // Mocking the flow before ViewModel init
         coEvery { getSubscriptionsSortedByCreationUseCase() } returns flowOf(emptyList())
-        
+        io.mockk.every { getServicePresetsUseCase() } returns emptyList()
+
         // Note: This constructor call expects the updated signature
-        viewModel = AddSubscriptionViewModel(
-            insertSubscriptionUseCase,
-            getSubscriptionsSortedByCreationUseCase,
-            deleteSubscriptionUseCase
-        )
+        viewModel =
+                AddSubscriptionViewModel(
+                        insertSubscriptionUseCase,
+                        getSubscriptionsSortedByCreationUseCase,
+                        deleteSubscriptionUseCase,
+                        getServicePresetsUseCase
+                )
     }
 
     @After
@@ -57,13 +63,15 @@ class AddSubscriptionViewModelTest {
         // Given
         val subs = listOf<Subscription>(mockk(), mockk())
         coEvery { getSubscriptionsSortedByCreationUseCase() } returns flowOf(subs)
-        
+
         // Re-init viewModel to trigger init block
-        viewModel = AddSubscriptionViewModel(
-            insertSubscriptionUseCase,
-            getSubscriptionsSortedByCreationUseCase,
-            deleteSubscriptionUseCase
-        )
+        viewModel =
+                AddSubscriptionViewModel(
+                        insertSubscriptionUseCase,
+                        getSubscriptionsSortedByCreationUseCase,
+                        deleteSubscriptionUseCase,
+                        getServicePresetsUseCase
+                )
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
@@ -74,15 +82,15 @@ class AddSubscriptionViewModelTest {
     fun `OnSubscriptionClicked should open bottom sheet and set selection`() {
         val sub: Subscription = mockk()
         viewModel.onIntent(AddSubscriptionIntent.OnSubscriptionClicked(sub))
-        
+
         assertEquals(sub, viewModel.uiState.value.selectedSubscription)
         assertTrue(viewModel.uiState.value.isBottomSheetOpen)
     }
-    
+
     @Test
     fun `OnBottomSheetDismissed should close sheet and clear selection`() {
         viewModel.onIntent(AddSubscriptionIntent.OnBottomSheetDismissed)
-        
+
         assertFalse(viewModel.uiState.value.isBottomSheetOpen)
         assertEquals(null, viewModel.uiState.value.selectedSubscription)
     }
@@ -92,7 +100,7 @@ class AddSubscriptionViewModelTest {
         viewModel.onIntent(AddSubscriptionIntent.OnDeleteClicked)
         assertTrue(viewModel.uiState.value.isDeleteDialogVisible)
     }
-    
+
     @Test
     fun `OnDeleteCancelled should hide dialog`() {
         viewModel.onIntent(AddSubscriptionIntent.OnDeleteCancelled)
@@ -116,17 +124,19 @@ class AddSubscriptionViewModelTest {
         // Given
         val subs = listOf<Subscription>(mockk(), mockk())
         coEvery { getSubscriptionsSortedByCreationUseCase() } returns flowOf(subs)
-        
-        viewModel = AddSubscriptionViewModel(
-            insertSubscriptionUseCase,
-            getSubscriptionsSortedByCreationUseCase,
-            deleteSubscriptionUseCase
-        )
+
+        viewModel =
+                AddSubscriptionViewModel(
+                        insertSubscriptionUseCase,
+                        getSubscriptionsSortedByCreationUseCase,
+                        deleteSubscriptionUseCase,
+                        getServicePresetsUseCase
+                )
         testDispatcher.scheduler.advanceUntilIdle()
-        
+
         // When
         viewModel.onIntent(AddSubscriptionIntent.OnSuccessDismissed)
-        
+
         // Then
         assertEquals(subs, viewModel.uiState.value.subscriptions)
         assertFalse(viewModel.uiState.value.saveSuccess)

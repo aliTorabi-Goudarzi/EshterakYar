@@ -3,24 +3,27 @@ package ir.dekot.eshterakyar.feature_addSubscription.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.BillingCycle
+import ir.dekot.eshterakyar.feature_addSubscription.domain.model.ServicePreset
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.SubscriptionCategory
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.DeleteSubscriptionUseCase
+import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetServicePresetsUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetSubscriptionsSortedByCreationUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.InsertSubscriptionUseCase
+import ir.dekot.eshterakyar.feature_addSubscription.presentation.intent.AddSubscriptionIntent
 import ir.dekot.eshterakyar.feature_addSubscription.presentation.state.AddSubscriptionUiState
+import java.util.Date
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.util.Date
-
-import ir.dekot.eshterakyar.feature_addSubscription.presentation.intent.AddSubscriptionIntent
 
 class AddSubscriptionViewModel(
-    private val insertSubscriptionUseCase: InsertSubscriptionUseCase,
-    private val getSubscriptionsSortedByCreationUseCase: GetSubscriptionsSortedByCreationUseCase,
-    private val deleteSubscriptionUseCase: DeleteSubscriptionUseCase
+        private val insertSubscriptionUseCase: InsertSubscriptionUseCase,
+        private val getSubscriptionsSortedByCreationUseCase:
+                GetSubscriptionsSortedByCreationUseCase,
+        private val deleteSubscriptionUseCase: DeleteSubscriptionUseCase,
+        private val getServicePresetsUseCase: GetServicePresetsUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddSubscriptionUiState())
@@ -28,6 +31,12 @@ class AddSubscriptionViewModel(
 
     init {
         loadSubscriptions()
+        loadPresets()
+    }
+
+    private fun loadPresets() {
+        val presets = getServicePresetsUseCase()
+        _uiState.value = _uiState.value.copy(servicePresets = presets)
     }
 
     private fun loadSubscriptions() {
@@ -52,18 +61,18 @@ class AddSubscriptionViewModel(
             AddSubscriptionIntent.OnSaveClicked -> saveSubscription()
             AddSubscriptionIntent.OnErrorDismissed -> clearError()
             AddSubscriptionIntent.OnSuccessDismissed -> resetSaveSuccess()
-            
+            is AddSubscriptionIntent.OnPresetSelected -> onPresetSelected(intent.preset)
+            AddSubscriptionIntent.OnPresetCleared -> onPresetCleared()
             is AddSubscriptionIntent.OnSubscriptionClicked -> {
-                _uiState.value = _uiState.value.copy(
-                    selectedSubscription = intent.subscription,
-                    isBottomSheetOpen = true
-                )
+                _uiState.value =
+                        _uiState.value.copy(
+                                selectedSubscription = intent.subscription,
+                                isBottomSheetOpen = true
+                        )
             }
             AddSubscriptionIntent.OnBottomSheetDismissed -> {
-                _uiState.value = _uiState.value.copy(
-                    isBottomSheetOpen = false,
-                    selectedSubscription = null
-                )
+                _uiState.value =
+                        _uiState.value.copy(isBottomSheetOpen = false, selectedSubscription = null)
             }
             AddSubscriptionIntent.OnDeleteClicked -> {
                 _uiState.value = _uiState.value.copy(isDeleteDialogVisible = true)
@@ -74,30 +83,30 @@ class AddSubscriptionViewModel(
             }
             is AddSubscriptionIntent.OnEditClicked -> {
                 // Navigation is handled by UI (SideEffect), but we close the sheet
-                _uiState.value = _uiState.value.copy(
-                    isBottomSheetOpen = false,
-                    selectedSubscription = null
-                )
+                _uiState.value =
+                        _uiState.value.copy(isBottomSheetOpen = false, selectedSubscription = null)
             }
         }
     }
-    
+
     private fun deleteSelectedSubscription() {
         val subToDelete = _uiState.value.selectedSubscription ?: return
-        
+
         viewModelScope.launch {
             try {
                 deleteSubscriptionUseCase(subToDelete)
-                _uiState.value = _uiState.value.copy(
-                    isDeleteDialogVisible = false,
-                    isBottomSheetOpen = false,
-                    selectedSubscription = null
-                )
+                _uiState.value =
+                        _uiState.value.copy(
+                                isDeleteDialogVisible = false,
+                                isBottomSheetOpen = false,
+                                selectedSubscription = null
+                        )
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    error = "خطا در حذف اشتراک: ${e.message}",
-                    isDeleteDialogVisible = false
-                )
+                _uiState.value =
+                        _uiState.value.copy(
+                                error = "خطا در حذف اشتراک: ${e.message}",
+                                isDeleteDialogVisible = false
+                        )
             }
         }
     }
@@ -120,17 +129,21 @@ class AddSubscriptionViewModel(
         return when (step) {
             1 -> { // Basic Info
                 val nameValid = _uiState.value.name.isNotBlank()
-                _uiState.value = _uiState.value.copy(
-                    nameError = if (!nameValid) "نام اشتراک نمی‌تواند خالی باشد" else null
-                )
+                _uiState.value =
+                        _uiState.value.copy(
+                                nameError =
+                                        if (!nameValid) "نام اشتراک نمی‌تواند خالی باشد" else null
+                        )
                 nameValid
             }
             2 -> { // Payment Details
-                val priceValid = _uiState.value.price.isNotBlank() && 
+                val priceValid =
+                        _uiState.value.price.isNotBlank() &&
                                 (_uiState.value.price.toDoubleOrNull() ?: 0.0) > 0
-                _uiState.value = _uiState.value.copy(
-                    priceError = if (!priceValid) "قیمت باید یک عدد مثبت باشد" else null
-                )
+                _uiState.value =
+                        _uiState.value.copy(
+                                priceError = if (!priceValid) "قیمت باید یک عدد مثبت باشد" else null
+                        )
                 priceValid
             }
             else -> true
@@ -138,19 +151,25 @@ class AddSubscriptionViewModel(
     }
 
     private fun updateName(name: String) {
-        _uiState.value = _uiState.value.copy(
-            name = name,
-            nameError = if (name.isBlank()) "نام اشتراک نمی‌تواند خالی باشد" else null
-        )
+        _uiState.value =
+                _uiState.value.copy(
+                        name = name,
+                        nameError = if (name.isBlank()) "نام اشتراک نمی‌تواند خالی باشد" else null
+                )
     }
 
     private fun updatePrice(price: String) {
-        _uiState.value = _uiState.value.copy(
-            price = price,
-            priceError = if (price.isBlank() || price.toDoubleOrNull() == null || price.toDouble() <= 0) 
-                "قیمت باید یک عدد مثبت باشد" 
-            else null
-        )
+        _uiState.value =
+                _uiState.value.copy(
+                        price = price,
+                        priceError =
+                                if (price.isBlank() ||
+                                                price.toDoubleOrNull() == null ||
+                                                price.toDouble() <= 0
+                                )
+                                        "قیمت باید یک عدد مثبت باشد"
+                                else null
+                )
     }
 
     private fun updateCurrency(currency: String) {
@@ -174,17 +193,17 @@ class AddSubscriptionViewModel(
     }
 
     private fun validateAndSave(): Boolean {
-        val nameError = if (_uiState.value.name.isBlank()) "نام اشتراک نمی‌تواند خالی باشد" else null
-        val priceError = if (_uiState.value.price.isBlank() || 
-                              _uiState.value.price.toDoubleOrNull() == null || 
-                              _uiState.value.price.toDouble() <= 0) 
-            "قیمت باید یک عدد مثبت باشد" 
-        else null
+        val nameError =
+                if (_uiState.value.name.isBlank()) "نام اشتراک نمی‌تواند خالی باشد" else null
+        val priceError =
+                if (_uiState.value.price.isBlank() ||
+                                _uiState.value.price.toDoubleOrNull() == null ||
+                                _uiState.value.price.toDouble() <= 0
+                )
+                        "قیمت باید یک عدد مثبت باشد"
+                else null
 
-        _uiState.value = _uiState.value.copy(
-            nameError = nameError,
-            priceError = priceError
-        )
+        _uiState.value = _uiState.value.copy(nameError = nameError, priceError = priceError)
 
         return nameError == null && priceError == null
     }
@@ -192,30 +211,25 @@ class AddSubscriptionViewModel(
     private fun saveSubscription() {
         if (!validateAndSave()) return
 
-        val newSubscription = Subscription(
-            name = _uiState.value.name,
-            price = _uiState.value.price.toDouble(),
-            currency = _uiState.value.currency,
-            billingCycle = _uiState.value.billingCycle,
-            startDate = Date(), // تاریخ شروع امروز
-            nextRenewalDate = _uiState.value.nextRenewalDate,
-            isActive = _uiState.value.isActive,
-            category = _uiState.value.category
-        )
+        val newSubscription =
+                Subscription(
+                        name = _uiState.value.name,
+                        price = _uiState.value.price.toDouble(),
+                        currency = _uiState.value.currency,
+                        billingCycle = _uiState.value.billingCycle,
+                        startDate = Date(), // تاریخ شروع امروز
+                        nextRenewalDate = _uiState.value.nextRenewalDate,
+                        isActive = _uiState.value.isActive,
+                        category = _uiState.value.category
+                )
 
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isSaving = true)
                 insertSubscriptionUseCase(newSubscription)
-                _uiState.value = _uiState.value.copy(
-                    isSaving = false,
-                    saveSuccess = true
-                )
+                _uiState.value = _uiState.value.copy(isSaving = false, saveSuccess = true)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isSaving = false,
-                    error = e.message
-                )
+                _uiState.value = _uiState.value.copy(isSaving = false, error = e.message)
             }
         }
     }
@@ -225,9 +239,29 @@ class AddSubscriptionViewModel(
     }
 
     private fun resetSaveSuccess() {
-        // Reset form but keep subscriptions
-        _uiState.value = AddSubscriptionUiState(
-            subscriptions = _uiState.value.subscriptions
-        )
+        // Reset form but keep subscriptions and presets
+        _uiState.value =
+                AddSubscriptionUiState(
+                        subscriptions = _uiState.value.subscriptions,
+                        servicePresets = _uiState.value.servicePresets
+                )
+    }
+
+    /** انتخاب پریست و پر کردن خودکار فیلدهای فرم Select preset and auto-fill form fields */
+    private fun onPresetSelected(preset: ServicePreset) {
+        _uiState.value =
+                _uiState.value.copy(
+                        selectedPreset = preset,
+                        name = preset.name,
+                        category = preset.defaultCategory,
+                        billingCycle = preset.defaultBillingCycle,
+                        price = preset.defaultPrice?.toInt()?.toString() ?: "",
+                        nameError = null
+                )
+    }
+
+    /** پاک کردن پریست انتخاب شده Clear selected preset */
+    private fun onPresetCleared() {
+        _uiState.value = _uiState.value.copy(selectedPreset = null)
     }
 }

@@ -49,4 +49,8 @@
     <string name="delete_confirmation_message">آیا از حذف این اشتراک اطمینان دارید؟</string>
     <string name="yes">بله</string>
     <string name="no">خیر</string>
+
+    <!-- Service Presets -->
+    <string name="popular_services">سرویس‌های محبوب</string>
+    <string name="or_add_manually">یا اطلاعات را دستی وارد کنید</string>
 </resources>

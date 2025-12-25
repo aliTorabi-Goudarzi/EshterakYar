@@ -6,6 +6,8 @@ import ir.dekot.eshterakyar.core.domain.usecase.SetPreferredCurrencyUseCase
 import ir.dekot.eshterakyar.core.domain.usecase.UpdateUserUseCase
 import ir.dekot.eshterakyar.core.preferences.CurrencyPreferences
 import ir.dekot.eshterakyar.core.themePreferences.ThemeViewModel
+import ir.dekot.eshterakyar.feature_addSubscription.data.repository.ServicePresetRepositoryImpl
+import ir.dekot.eshterakyar.feature_addSubscription.domain.repository.ServicePresetRepository
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.CancelReminderUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.DeleteSubscriptionUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetActiveSubscriptionsUseCase
@@ -13,6 +15,7 @@ import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetAllSubscri
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetCategoryBreakdownUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetInactiveSubscriptionsUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetNearingRenewalSubscriptionsUseCase
+import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetServicePresetsUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetSubscriptionByIdUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetSubscriptionStatsUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetSubscriptionsSortedByCreationUseCase
@@ -64,6 +67,10 @@ val appModule = module {
     singleOf(constructor = ::UpdateSubscriptionUseCase)
     singleOf(constructor = ::DeleteSubscriptionUseCase)
     singleOf(constructor = ::GetUserGreetingUseCase)
+
+    // Service Presets
+    single<ServicePresetRepository> { ServicePresetRepositoryImpl() }
+    singleOf(constructor = ::GetServicePresetsUseCase)
 
     // User related
     singleOf(constructor = ::GetUserUseCase)

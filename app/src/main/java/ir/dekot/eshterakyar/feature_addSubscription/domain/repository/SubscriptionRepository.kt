@@ -67,4 +67,7 @@ interface SubscriptionRepository {
 
     // Get count of subscriptions nearing renewal
     suspend fun getNearingRenewalSubscriptionsCount(reminderDate: Long): Int
+
+    // Get nearest renewal date (timestamp)
+    suspend fun getNearestRenewalDate(): Long?
 }
