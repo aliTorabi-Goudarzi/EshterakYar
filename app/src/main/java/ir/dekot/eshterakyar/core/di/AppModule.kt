@@ -23,6 +23,13 @@ import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.InsertSubscri
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.ScheduleReminderUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.UpdateSubscriptionUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.presentation.viewmodel.AddSubscriptionViewModel
+import ir.dekot.eshterakyar.feature_category.data.repository.CategoryRepositoryImpl
+import ir.dekot.eshterakyar.feature_category.domain.repository.CategoryRepository
+import ir.dekot.eshterakyar.feature_category.domain.usecase.AddCategoryUseCase
+import ir.dekot.eshterakyar.feature_category.domain.usecase.DeleteCategoryUseCase
+import ir.dekot.eshterakyar.feature_category.domain.usecase.GetAllCategoriesUseCase
+import ir.dekot.eshterakyar.feature_category.domain.usecase.UpdateCategoryUseCase
+import ir.dekot.eshterakyar.feature_category.presentation.viewmodel.CategoryManagementViewModel
 import ir.dekot.eshterakyar.feature_home.domain.usecase.GetUpcomingRenewalsUseCase
 import ir.dekot.eshterakyar.feature_home.domain.usecase.GetUserGreetingUseCase
 import ir.dekot.eshterakyar.feature_home.presentation.viewmodel.EditSubscriptionViewModel
@@ -40,50 +47,58 @@ import org.koin.dsl.module
 
 val appModule = module {
 
-    // ViewModels
-    viewModelOf(constructor = ::ThemeViewModel)
-    viewModelOf(constructor = ::HomeViewModel)
-    viewModelOf(constructor = ::SubscriptionDetailViewModel)
-    viewModelOf(constructor = ::EditSubscriptionViewModel)
-    viewModelOf(constructor = ::AddSubscriptionViewModel)
-    viewModelOf(constructor = ::ReportsViewModel)
-    viewModelOf(constructor = ::ProfileViewModel)
-    viewModelOf(constructor = ::ProfileDetailViewModel)
-    viewModelOf(constructor = ::PersonalInformationViewModel)
-    viewModelOf(constructor = ::SettingsViewModel)
+        // ViewModels
+        viewModelOf(constructor = ::ThemeViewModel)
+        viewModelOf(constructor = ::HomeViewModel)
+        viewModelOf(constructor = ::SubscriptionDetailViewModel)
+        viewModelOf(constructor = ::EditSubscriptionViewModel)
+        viewModelOf(constructor = ::AddSubscriptionViewModel)
+        viewModelOf(constructor = ::ReportsViewModel)
+        viewModelOf(constructor = ::ProfileViewModel)
+        viewModelOf(constructor = ::ProfileDetailViewModel)
+        viewModelOf(constructor = ::PersonalInformationViewModel)
+        viewModelOf(constructor = ::SettingsViewModel)
+        viewModelOf(constructor = ::CategoryManagementViewModel)
 
-    // Preferences
-    single { CurrencyPreferences(androidContext()) }
+        // Preferences
+        single { CurrencyPreferences(androidContext()) }
 
-    // Use Cases
-    singleOf(constructor = ::GetAllSubscriptionsUseCase)
-    singleOf(constructor = ::GetSubscriptionsSortedByCreationUseCase)
-    singleOf(constructor = ::GetActiveSubscriptionsUseCase)
-    singleOf(constructor = ::GetInactiveSubscriptionsUseCase)
-    singleOf(constructor = ::GetNearingRenewalSubscriptionsUseCase)
-    singleOf(constructor = ::GetSubscriptionStatsUseCase)
-    singleOf(constructor = ::GetCategoryBreakdownUseCase)
-    singleOf(constructor = ::InsertSubscriptionUseCase)
-    singleOf(constructor = ::GetSubscriptionByIdUseCase)
-    singleOf(constructor = ::UpdateSubscriptionUseCase)
-    singleOf(constructor = ::DeleteSubscriptionUseCase)
-    singleOf(constructor = ::GetUserGreetingUseCase)
-    singleOf(constructor = ::GetUpcomingRenewalsUseCase)
+        // Use Cases
+        singleOf(constructor = ::GetAllSubscriptionsUseCase)
+        singleOf(constructor = ::GetSubscriptionsSortedByCreationUseCase)
+        singleOf(constructor = ::GetActiveSubscriptionsUseCase)
+        singleOf(constructor = ::GetInactiveSubscriptionsUseCase)
+        singleOf(constructor = ::GetNearingRenewalSubscriptionsUseCase)
+        singleOf(constructor = ::GetSubscriptionStatsUseCase)
+        singleOf(constructor = ::GetCategoryBreakdownUseCase)
+        singleOf(constructor = ::InsertSubscriptionUseCase)
+        singleOf(constructor = ::GetSubscriptionByIdUseCase)
+        singleOf(constructor = ::UpdateSubscriptionUseCase)
+        singleOf(constructor = ::DeleteSubscriptionUseCase)
+        singleOf(constructor = ::GetUserGreetingUseCase)
+        singleOf(constructor = ::GetUpcomingRenewalsUseCase)
 
-    // Service Presets
-    single<ServicePresetRepository> { ServicePresetRepositoryImpl() }
-    singleOf(constructor = ::GetServicePresetsUseCase)
+        // Service Presets
+        single<ServicePresetRepository> { ServicePresetRepositoryImpl() }
+        singleOf(constructor = ::GetServicePresetsUseCase)
 
-    // User related
-    singleOf(constructor = ::GetUserUseCase)
-    singleOf(constructor = ::UpdateUserUseCase)
+        // Category Management
+        single<CategoryRepository> { CategoryRepositoryImpl(get()) }
+        singleOf(constructor = ::GetAllCategoriesUseCase)
+        singleOf(constructor = ::AddCategoryUseCase)
+        singleOf(constructor = ::DeleteCategoryUseCase)
+        singleOf(constructor = ::UpdateCategoryUseCase)
 
-    // Currency related
-    singleOf(constructor = ::GetPreferredCurrencyUseCase)
-    singleOf(constructor = ::SetPreferredCurrencyUseCase)
+        // User related
+        singleOf(constructor = ::GetUserUseCase)
+        singleOf(constructor = ::UpdateUserUseCase)
 
-    // WorkManager & Reminder related
-    single { androidx.work.WorkManager.getInstance(androidContext()) }
-    singleOf(constructor = ::ScheduleReminderUseCase)
-    singleOf(constructor = ::CancelReminderUseCase)
+        // Currency related
+        singleOf(constructor = ::GetPreferredCurrencyUseCase)
+        singleOf(constructor = ::SetPreferredCurrencyUseCase)
+
+        // WorkManager & Reminder related
+        single { androidx.work.WorkManager.getInstance(androidContext()) }
+        singleOf(constructor = ::ScheduleReminderUseCase)
+        singleOf(constructor = ::CancelReminderUseCase)
 }

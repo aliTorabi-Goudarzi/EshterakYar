@@ -5,9 +5,17 @@ import ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.SubscriptionStats
 import ir.dekot.eshterakyar.feature_home.domain.model.UserGreeting
 
-/**
- * قرارداد وضعیت، قصد و اثرات جانبی برای صفحه خانه
- */
+/** گزینه‌های مرتب‌سازی لیست اشتراک‌ها */
+enum class SortOption(val persianName: String) {
+    RENEWAL_SOON("نزدیک‌ترین تمدید"),
+    RENEWAL_FAR("دورترین تمدید"),
+    PRICE_HIGH("گران‌ترین"),
+    PRICE_LOW("ارزان‌ترین"),
+    NAME_ASC("نام (الف تا ی)"),
+    NAME_DESC("نام (ی تا الف)")
+}
+
+/** قرارداد وضعیت، قصد و اثرات جانبی برای صفحه خانه */
 
 /**
  * وضعیت UI صفحه خانه
@@ -22,27 +30,28 @@ import ir.dekot.eshterakyar.feature_home.domain.model.UserGreeting
  */
 @Immutable
 data class HomeState(
-    val subscriptions: List<Subscription> = emptyList(),
-    val stats: SubscriptionStats? = null,
-    val greeting: UserGreeting? = null,
-    val inactiveCount: Int = 0,
-    val nearingRenewalCount: Int = 0,
-    val isLoading: Boolean = true,
-    val error: String? = null
+        val subscriptions: List<Subscription> = emptyList(),
+        val filteredSubscriptions: List<Subscription> = emptyList(),
+        val searchQuery: String = "",
+        val selectedSortOption: SortOption = SortOption.RENEWAL_SOON,
+        val stats: SubscriptionStats? = null,
+        val greeting: UserGreeting? = null,
+        val inactiveCount: Int = 0,
+        val nearingRenewalCount: Int = 0,
+        val isLoading: Boolean = true,
+        val error: String? = null
 )
 
-/**
- * قصد‌های (Intents) کاربر در صفحه خانه
- */
+/** قصد‌های (Intents) کاربر در صفحه خانه */
 sealed interface HomeIntent {
-    /**
-     * بارگذاری مجدد داده‌ها
-     */
+    /** بارگذاری مجدد داده‌ها */
     data object Refresh : HomeIntent
 
-    /**
-     * کلیک روی دکمه افزودن اشتراک
-     */
+    /** تغییر متن جستجو */
+    data class OnSearchQueryChanged(val query: String) : HomeIntent
+
+    /** تغییر نوع مرتب‌سازی */
+    data class OnSortOptionChanged(val option: SortOption) : HomeIntent
     data object OnAddSubscriptionClicked : HomeIntent
 
     /**
@@ -70,14 +79,9 @@ sealed interface HomeIntent {
     data class OnToggleSubscriptionStatus(val subscription: Subscription) : HomeIntent
 }
 
-/**
- * اثرات جانبی (Side Effects) صفحه خانه
- * مثل نویگیشن یا نمایش پیام‌های موقت
- */
+/** اثرات جانبی (Side Effects) صفحه خانه مثل نویگیشن یا نمایش پیام‌های موقت */
 sealed interface HomeEffect {
-    /**
-     * هدایت به صفحه افزودن اشتراک
-     */
+    /** هدایت به صفحه افزودن اشتراک */
     data object NavigateToAddSubscription : HomeEffect
 
     /**

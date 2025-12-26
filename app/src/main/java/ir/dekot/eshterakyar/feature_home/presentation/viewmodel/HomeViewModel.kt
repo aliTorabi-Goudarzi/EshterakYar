@@ -18,11 +18,11 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
-    private val getActiveSubscriptionsUseCase: GetActiveSubscriptionsUseCase,
-    private val getSubscriptionStatsUseCase: GetSubscriptionStatsUseCase,
-    private val getInactiveSubscriptionsUseCase: GetInactiveSubscriptionsUseCase,
-    private val getNearingRenewalSubscriptionsUseCase: GetNearingRenewalSubscriptionsUseCase,
-    private val getUserGreetingUseCase: GetUserGreetingUseCase
+        private val getActiveSubscriptionsUseCase: GetActiveSubscriptionsUseCase,
+        private val getSubscriptionStatsUseCase: GetSubscriptionStatsUseCase,
+        private val getInactiveSubscriptionsUseCase: GetInactiveSubscriptionsUseCase,
+        private val getNearingRenewalSubscriptionsUseCase: GetNearingRenewalSubscriptionsUseCase,
+        private val getUserGreetingUseCase: GetUserGreetingUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeState())
@@ -39,10 +39,14 @@ class HomeViewModel(
         when (intent) {
             HomeIntent.Refresh -> loadData()
             HomeIntent.OnAddSubscriptionClicked -> sendEffect(HomeEffect.NavigateToAddSubscription)
-            is HomeIntent.OnSubscriptionClicked -> sendEffect(HomeEffect.NavigateToSubscriptionDetail(intent.id))
-            is HomeIntent.OnEditSubscriptionClicked -> sendEffect(HomeEffect.NavigateToEditSubscription(intent.id))
+            is HomeIntent.OnSubscriptionClicked ->
+                    sendEffect(HomeEffect.NavigateToSubscriptionDetail(intent.id))
+            is HomeIntent.OnEditSubscriptionClicked ->
+                    sendEffect(HomeEffect.NavigateToEditSubscription(intent.id))
             is HomeIntent.OnDeleteSubscription -> deleteSubscription(intent)
             is HomeIntent.OnToggleSubscriptionStatus -> toggleSubscriptionStatus(intent)
+            is HomeIntent.OnSearchQueryChanged -> filterSubscriptions(intent.query)
+            is HomeIntent.OnSortOptionChanged -> changeSortOption(intent.option)
         }
     }
 
@@ -55,26 +59,87 @@ class HomeViewModel(
     }
 
     private fun sendEffect(effect: HomeEffect) {
-        viewModelScope.launch {
-            _effect.send(effect)
-        }
+        viewModelScope.launch { _effect.send(effect) }
     }
 
     private fun loadSubscriptions() {
         viewModelScope.launch {
             try {
                 getActiveSubscriptionsUseCase().collect { subscriptions ->
-                    _uiState.value = _uiState.value.copy(
-                        subscriptions = subscriptions,
-                        isLoading = false
-                    )
+                    val currentQuery = _uiState.value.searchQuery
+                    val currentSort = _uiState.value.selectedSortOption
+                    _uiState.value =
+                            _uiState.value.copy(
+                                    subscriptions = subscriptions,
+                                    filteredSubscriptions =
+                                            applyFilterAndSort(
+                                                    subscriptions,
+                                                    currentQuery,
+                                                    currentSort
+                                            ),
+                                    isLoading = false
+                            )
                 }
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = e.message
-                )
+                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
             }
+        }
+    }
+
+    /** فیلتر کردن اشتراک‌ها بر اساس متن جستجو */
+    private fun filterSubscriptions(query: String) {
+        val subscriptions = _uiState.value.subscriptions
+        val sortOption = _uiState.value.selectedSortOption
+        _uiState.value =
+                _uiState.value.copy(
+                        searchQuery = query,
+                        filteredSubscriptions = applyFilterAndSort(subscriptions, query, sortOption)
+                )
+    }
+
+    /** تغییر نوع مرتب‌سازی */
+    private fun changeSortOption(
+            option: ir.dekot.eshterakyar.feature_home.presentation.mvi.SortOption
+    ) {
+        val subscriptions = _uiState.value.subscriptions
+        val query = _uiState.value.searchQuery
+        _uiState.value =
+                _uiState.value.copy(
+                        selectedSortOption = option,
+                        filteredSubscriptions = applyFilterAndSort(subscriptions, query, option)
+                )
+    }
+
+    /** اعمال فیلتر و مرتب‌سازی روی لیست اشتراک‌ها */
+    private fun applyFilterAndSort(
+            subscriptions:
+                    List<ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription>,
+            query: String,
+            sortOption: ir.dekot.eshterakyar.feature_home.presentation.mvi.SortOption
+    ): List<ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription> {
+        val filtered =
+                if (query.isBlank()) {
+                    subscriptions
+                } else {
+                    subscriptions.filter {
+                        it.name.contains(query, ignoreCase = true) ||
+                                it.description.contains(query, ignoreCase = true)
+                    }
+                }
+
+        return when (sortOption) {
+            ir.dekot.eshterakyar.feature_home.presentation.mvi.SortOption.RENEWAL_SOON ->
+                    filtered.sortedBy { it.nextRenewalDate }
+            ir.dekot.eshterakyar.feature_home.presentation.mvi.SortOption.RENEWAL_FAR ->
+                    filtered.sortedByDescending { it.nextRenewalDate }
+            ir.dekot.eshterakyar.feature_home.presentation.mvi.SortOption.PRICE_HIGH ->
+                    filtered.sortedByDescending { it.price }
+            ir.dekot.eshterakyar.feature_home.presentation.mvi.SortOption.PRICE_LOW ->
+                    filtered.sortedBy { it.price }
+            ir.dekot.eshterakyar.feature_home.presentation.mvi.SortOption.NAME_ASC ->
+                    filtered.sortedBy { it.name }
+            ir.dekot.eshterakyar.feature_home.presentation.mvi.SortOption.NAME_DESC ->
+                    filtered.sortedByDescending { it.name }
         }
     }
 
@@ -82,13 +147,9 @@ class HomeViewModel(
         viewModelScope.launch {
             try {
                 val stats = getSubscriptionStatsUseCase()
-                _uiState.value = _uiState.value.copy(
-                    stats = stats
-                )
+                _uiState.value = _uiState.value.copy(stats = stats)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    error = e.message
-                )
+                _uiState.value = _uiState.value.copy(error = e.message)
             }
         }
     }
@@ -97,13 +158,9 @@ class HomeViewModel(
         viewModelScope.launch {
             try {
                 val greeting = getUserGreetingUseCase.execute("علی ترابی گودرزی")
-                _uiState.value = _uiState.value.copy(
-                    greeting = greeting
-                )
+                _uiState.value = _uiState.value.copy(greeting = greeting)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    error = e.message
-                )
+                _uiState.value = _uiState.value.copy(error = e.message)
             }
         }
     }
@@ -113,14 +170,13 @@ class HomeViewModel(
             try {
                 val inactiveCount = getInactiveSubscriptionsUseCase()
                 val nearingRenewalCount = getNearingRenewalSubscriptionsUseCase()
-                _uiState.value = _uiState.value.copy(
-                    inactiveCount = inactiveCount,
-                    nearingRenewalCount = nearingRenewalCount
-                )
+                _uiState.value =
+                        _uiState.value.copy(
+                                inactiveCount = inactiveCount,
+                                nearingRenewalCount = nearingRenewalCount
+                        )
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    error = e.message
-                )
+                _uiState.value = _uiState.value.copy(error = e.message)
             }
         }
     }
