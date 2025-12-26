@@ -38,126 +38,130 @@ import org.koin.androidx.compose.koinViewModel
 
 // تعریف استیت‌های مختلف برای انیمیشن
 private enum class SwitchState2 {
-    Checked, Unchecked
+    Checked,
+    Unchecked
 }
 
 @Composable
 fun CustomAnimatedSwitch(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    width: Dp = 65.dp,
-    height: Dp = 34.dp,
-    thumbColor: Color = Color.White,
-    checkedTrackColor: Color = Color(0xFF35898F),
-    uncheckedTrackColor: Color = Color.LightGray,
-    gap: Dp = 6.dp // فاصله بین دستگیره و لبه‌ها
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        modifier: Modifier = Modifier,
+        width: Dp = 65.dp,
+        height: Dp = 34.dp,
+        thumbColor: Color = Color.White,
+        checkedTrackColor: Color = Color(0xFF35898F),
+        uncheckedTrackColor: Color = Color.LightGray,
+        gap: Dp = 6.dp // فاصله بین دستگیره و لبه‌ها
 ) {
     val internalChecked = remember { mutableStateOf(checked) }
     LaunchedEffect(checked) { internalChecked.value = checked }
 
-    val transition = updateTransition(
-        targetState = if (internalChecked.value) SwitchState2.Checked else SwitchState2.Unchecked,
-        label = "Switch Transition"
-    )
+    val transition =
+            updateTransition(
+                    targetState =
+                            if (internalChecked.value) SwitchState2.Checked
+                            else SwitchState2.Unchecked,
+                    label = "Switch Transition"
+            )
     val thumbSize = height - (gap * 2)
 
     // انیمیشن برای تغییر رنگ پس‌زمینه
-    val trackColor by transition.animateColor(
-        transitionSpec = {
-            tween(durationMillis = 250, easing = FastOutSlowInEasing)
-        },
-        label = "Track Color"
-    ) { state ->
-        when (state) {
-            SwitchState2.Checked -> checkedTrackColor
-            SwitchState2.Unchecked -> uncheckedTrackColor
-        }
-    }
+    val trackColor by
+            transition.animateColor(
+                    transitionSpec = { tween(durationMillis = 250, easing = FastOutSlowInEasing) },
+                    label = "Track Color"
+            ) { state ->
+                when (state) {
+                    SwitchState2.Checked -> checkedTrackColor
+                    SwitchState2.Unchecked -> uncheckedTrackColor
+                }
+            }
 
     // انیمیشن برای حرکت دستگیره در محور افقی
-    val thumbOffset by transition.animateDp(
-        transitionSpec = {
-            spring(
-                stiffness = Spring.StiffnessLow, // نرم بودن
-                dampingRatio = Spring.DampingRatioMediumBouncy // کشسانی ملایم
-            )
-        },
-        label = "Thumb Offset"
-    ) { state ->
-        val extraGap = if (state == SwitchState2.Checked) gap + 2.dp else gap + 2.dp
-        when (state) {
-            SwitchState2.Checked -> width - thumbSize - extraGap
-            SwitchState2.Unchecked -> extraGap
-        }
-    }
-    val thumbScale by transition.animateFloat(
-        transitionSpec = {
-            spring(
-                dampingRatio = Spring.DampingRatioLowBouncy,
-                stiffness = Spring.StiffnessMedium
-            )
-        },
-        label = "Thumb Scale"
-    ) { state ->
-        if (state == SwitchState2.Checked) 1.1f else 1.0f
-    }
-
+    val thumbOffset by
+            transition.animateDp(
+                    transitionSpec = {
+                        spring(
+                                stiffness = Spring.StiffnessLow, // نرم بودن
+                                dampingRatio = Spring.DampingRatioMediumBouncy // کشسانی ملایم
+                        )
+                    },
+                    label = "Thumb Offset"
+            ) { state ->
+                val extraGap = if (state == SwitchState2.Checked) gap + 2.dp else gap + 2.dp
+                when (state) {
+                    SwitchState2.Checked -> width - thumbSize - extraGap
+                    SwitchState2.Unchecked -> extraGap
+                }
+            }
+    val thumbScale by
+            transition.animateFloat(
+                    transitionSpec = {
+                        spring(
+                                dampingRatio = Spring.DampingRatioLowBouncy,
+                                stiffness = Spring.StiffnessMedium
+                        )
+                    },
+                    label = "Thumb Scale"
+            ) { state -> if (state == SwitchState2.Checked) 1.1f else 1.0f }
 
     Box(
-        modifier = modifier
-            .width(width)
-            .height(height)
-            .background(color = trackColor, shape = CircleShape)
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() }
-            ) {
-                val newValue = !internalChecked.value
-                internalChecked.value = newValue
-                onCheckedChange(newValue)
-            },
-        contentAlignment = Alignment.CenterStart
+            modifier =
+                    modifier.width(width)
+                            .height(height)
+                            .background(color = trackColor, shape = CircleShape)
+                            .clickable(
+                                    indication = null,
+                                    interactionSource = remember { MutableInteractionSource() }
+                            ) {
+                                val newValue = !internalChecked.value
+                                internalChecked.value = newValue
+                                onCheckedChange(newValue)
+                            },
+            contentAlignment = Alignment.CenterStart
     ) {
-
 
         // دستگیره (Thumb)
         Box(
-            modifier = Modifier
-                .offset(x = thumbOffset)
-                .size(thumbSize)
-                .scale(thumbScale)
-                .background(color = thumbColor, shape = CircleShape)
-                .padding(4.dp) // ایجاد حاشیه داخلی
-                .border(width = 30.dp, color = trackColor, shape = CircleShape)
-            // .background(color = thumbColor, shape = CircleShape)
-        )
+                modifier =
+                        Modifier.offset(x = thumbOffset)
+                                .size(thumbSize)
+                                .scale(thumbScale)
+                                .background(color = thumbColor, shape = CircleShape)
+                                .padding(4.dp) // ایجاد حاشیه داخلی
+                                .border(width = 30.dp, color = trackColor, shape = CircleShape)
+                // .background(color = thumbColor, shape = CircleShape)
+                )
     }
 }
-
 
 @Composable
 fun SwitchPreview() {
     var isChecked by remember { mutableStateOf(false) }
 
-    CustomAnimatedSwitch(
-        checked = isChecked,
-        onCheckedChange = { isChecked = it }
-    )
+    CustomAnimatedSwitch(checked = isChecked, onCheckedChange = { isChecked = it })
 }
 
 @Composable
 fun ThemeSwitch(modifier: Modifier = Modifier) {
-    // DEBUG: Log to validate ViewModel instantiation issue
-    println("DEBUG: ThemeSwitch - Attempting to create ThemeViewModel")
     val viewModel: ThemeViewModel = koinViewModel()
-    println("DEBUG: ThemeSwitch - ThemeViewModel created successfully")
-    val isDark by viewModel.isDarkTheme.collectAsStateWithLifecycle()
+    val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+    val isDark = themeMode == ThemeMode.DARK
 
     CustomAnimatedSwitch(
-        checked = isDark,
-        onCheckedChange = { viewModel.toggleTheme() },
-        modifier = modifier
+            checked = isDark,
+            onCheckedChange = { newValue ->
+                viewModel.setThemeMode(if (newValue) ThemeMode.DARK else ThemeMode.LIGHT)
+            },
+            modifier = modifier
     )
-    Text(text = if (isDark) "دارک مود فعال" else "لایت مود فعال")
+    Text(
+            text =
+                    when (themeMode) {
+                        ThemeMode.SYSTEM -> "پیروی از سیستم"
+                        ThemeMode.LIGHT -> "لایت مود"
+                        ThemeMode.DARK -> "دارک مود"
+                    }
+    )
 }

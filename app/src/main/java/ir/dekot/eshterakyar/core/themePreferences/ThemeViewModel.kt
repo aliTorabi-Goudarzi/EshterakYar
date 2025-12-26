@@ -8,28 +8,37 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+/**
+ * ویومدل مدیریت تم اپلیکیشن
+ *
+ * این ویومدل حالت تم را از DataStore خوانده و امکان تغییر آن را فراهم می‌کند
+ *
+ * @param application اپلیکیشن اندروید
+ */
 class ThemeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val themePreferences = ThemePreferences(application.applicationContext)
 
-    private val _isDarkTheme = MutableStateFlow(false)
-    val isDarkTheme: StateFlow<Boolean> = _isDarkTheme
+    private val _themeMode = MutableStateFlow(ThemeMode.SYSTEM)
+    /** حالت فعلی تم */
+    val themeMode: StateFlow<ThemeMode> = _themeMode
 
     init {
         // بارگذاری اولیه حالت از DataStore
         viewModelScope.launch {
-            themePreferences.isDarkTheme.collectLatest { isDark ->
-                _isDarkTheme.value = isDark
-            }
+            themePreferences.themeMode.collectLatest { mode -> _themeMode.value = mode }
         }
     }
 
-    // تابع برای تغییر حالت و ذخیره آن
-    fun toggleTheme() {
+    /**
+     * تغییر حالت تم
+     *
+     * @param mode حالت جدید تم
+     */
+    fun setThemeMode(mode: ThemeMode) {
         viewModelScope.launch {
-            val newValue = !_isDarkTheme.value
-            _isDarkTheme.value = newValue
-            themePreferences.setDarkTheme(newValue)
+            _themeMode.value = mode
+            themePreferences.setThemeMode(mode)
         }
     }
 }

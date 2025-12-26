@@ -23,6 +23,7 @@ import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.InsertSubscri
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.ScheduleReminderUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.UpdateSubscriptionUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.presentation.viewmodel.AddSubscriptionViewModel
+import ir.dekot.eshterakyar.feature_home.domain.usecase.GetUpcomingRenewalsUseCase
 import ir.dekot.eshterakyar.feature_home.domain.usecase.GetUserGreetingUseCase
 import ir.dekot.eshterakyar.feature_home.presentation.viewmodel.EditSubscriptionViewModel
 import ir.dekot.eshterakyar.feature_home.presentation.viewmodel.HomeViewModel
@@ -67,6 +68,7 @@ val appModule = module {
     singleOf(constructor = ::UpdateSubscriptionUseCase)
     singleOf(constructor = ::DeleteSubscriptionUseCase)
     singleOf(constructor = ::GetUserGreetingUseCase)
+    singleOf(constructor = ::GetUpcomingRenewalsUseCase)
 
     // Service Presets
     single<ServicePresetRepository> { ServicePresetRepositoryImpl() }

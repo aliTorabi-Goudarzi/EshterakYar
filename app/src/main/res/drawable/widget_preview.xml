@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- پس‌زمینه -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#F5F5F5" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+
+    <!-- محتوای پیش‌نمایش -->
+    <item
+        android:left="12dp"
+        android:top="12dp"
+        android:right="12dp"
+        android:bottom="12dp">
+        <layer-list>
+            <!-- هدر -->
+            <item android:bottom="60dp">
+                <shape android:shape="rectangle">
+                    <solid android:color="#3498DB" />
+                    <corners android:radius="8dp" />
+                </shape>
+            </item>
+
+            <!-- آیتم اول -->
+            <item
+                android:top="40dp"
+                android:bottom="40dp">
+                <shape android:shape="rectangle">
+                    <solid android:color="#FFFFFF" />
+                    <corners android:radius="6dp" />
+                </shape>
+            </item>
+
+            <!-- آیتم دوم -->
+            <item
+                android:top="60dp"
+                android:bottom="20dp">
+                <shape android:shape="rectangle">
+                    <solid android:color="#FFFFFF" />
+                    <corners android:radius="6dp" />
+                </shape>
+            </item>
+
+            <!-- آیتم سوم -->
+            <item android:top="80dp">
+                <shape android:shape="rectangle">
+                    <solid android:color="#FFFFFF" />
+                    <corners android:radius="6dp" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+</layer-list>

@@ -20,33 +20,34 @@ import org.koin.core.annotation.KoinExperimentalAPI
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
-fun NestedGraph(
-) {
+fun NestedGraph() {
     val viewModel: ThemeViewModel = koinViewModel()
-    val isDark by viewModel.isDarkTheme.collectAsStateWithLifecycle()
+    val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+    val isDark = themeMode == ir.dekot.eshterakyar.core.themePreferences.ThemeMode.DARK
     val theme = LocalTheme.current
     val entryProvider = koinEntryProvider()
     val nestedNavigator = koinInject<NestedNavigator>()
     Box(modifier = Modifier.fillMaxSize()) {
         NavDisplay(
-            backStack = nestedNavigator.backStack,
-            onBack = { nestedNavigator.goBack() },
-            entryDecorators = listOf(
-                rememberSaveableStateHolderNavEntryDecorator(),
-                rememberViewModelStoreNavEntryDecorator()
-            ),
-            entryProvider = entryProvider
+                backStack = nestedNavigator.backStack,
+                onBack = { nestedNavigator.goBack() },
+                entryDecorators =
+                        listOf(
+                                rememberSaveableStateHolderNavEntryDecorator(),
+                                rememberViewModelStoreNavEntryDecorator()
+                        ),
+                entryProvider = entryProvider
         )
 
         // Bottom Bar شناور بالای محتوا
         AnimatedNavigationBar(
-            navigateTo = {route -> nestedNavigator.navigateTo(route)},
-            modifier = Modifier.align(Alignment.BottomCenter),
-            barColor =theme.barColor,
-            circleColor = if (isDark) Color.White.copy(alpha = 0.2f) else  Color(0xFFadb5bd),
-            selectedColor = theme.bottomBarSelectedItemColor,
-            unselectedColor = theme.bottomBarUnselectedItemColor,
-            nestedNavigator = nestedNavigator
+                navigateTo = { route -> nestedNavigator.navigateTo(route) },
+                modifier = Modifier.align(Alignment.BottomCenter),
+                barColor = theme.barColor,
+                circleColor = if (isDark) Color.White.copy(alpha = 0.2f) else Color(0xFFadb5bd),
+                selectedColor = theme.bottomBarSelectedItemColor,
+                unselectedColor = theme.bottomBarUnselectedItemColor,
+                nestedNavigator = nestedNavigator
         )
     }
 }

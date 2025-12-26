@@ -53,4 +53,17 @@
     <!-- Service Presets -->
     <string name="popular_services">سرویس‌های محبوب</string>
     <string name="or_add_manually">یا اطلاعات را دستی وارد کنید</string>
+
+    <!-- Widget -->
+    <string name="widget_name">تمدیدهای آینده</string>
+    <string name="widget_description">نمایش ۳ اشتراک با نزدیک‌ترین تمدید</string>
+    <string name="widget_loading">در حال بارگذاری...</string>
+    <string name="widget_no_subscriptions">اشتراکی وجود ندارد</string>
+    <string name="widget_upcoming_renewals">تمدیدهای آینده</string>
+
+    <!-- Theme Mode -->
+    <string name="theme_mode_title">حالت نمایش</string>
+    <string name="theme_mode_system">پیروی از سیستم</string>
+    <string name="theme_mode_light">روشن</string>
+    <string name="theme_mode_dark">تاریک</string>
 </resources>

@@ -5,14 +5,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import ir.dekot.eshterakyar.core.navigation.EshterakYarApp
-import ir.dekot.eshterakyar.core.themePreferences.ThemeViewModel
 import ir.dekot.eshterakyar.core.theme.EshterakYarTheme
+import ir.dekot.eshterakyar.core.themePreferences.ThemeMode
+import ir.dekot.eshterakyar.core.themePreferences.ThemeViewModel
 import ir.dekot.eshterakyar.core.utils.LocalTheme
 import ir.dekot.eshterakyar.core.utils.darkThemeColor
 import ir.dekot.eshterakyar.core.utils.lightThemeColor
@@ -29,16 +30,28 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val viewModel: ThemeViewModel = koinViewModel()
-            val isDark by viewModel.isDarkTheme.collectAsStateWithLifecycle()
-            val themeColors = if(isDark) darkThemeColor else lightThemeColor
-            // Status bar icons رو dark کن
+            val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+
+            // تشخیص تم سیستم
+            val systemIsDark = isSystemInDarkTheme()
+
+            // محاسبه تم نهایی بر اساس حالت انتخابی
+            val isDark =
+                    when (themeMode) {
+                        ThemeMode.SYSTEM -> systemIsDark
+                        ThemeMode.LIGHT -> false
+                        ThemeMode.DARK -> true
+                    }
+
+            val themeColors = if (isDark) darkThemeColor else lightThemeColor
+
+            // Status bar icons رو بر اساس تم تنظیم کن
             WindowCompat.getInsetsController(window, window.decorView).apply {
-                isAppearanceLightStatusBars = isDark
+                isAppearanceLightStatusBars = !isDark
             }
-            CompositionLocalProvider(LocalTheme provides themeColors){
-                EshterakYarTheme(darkTheme = isDark) {
-                    EshterakYarApp()
-                }
+
+            CompositionLocalProvider(LocalTheme provides themeColors) {
+                EshterakYarTheme(darkTheme = isDark) { EshterakYarApp() }
             }
         }
     }

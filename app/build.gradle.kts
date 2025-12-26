@@ -118,6 +118,10 @@ dependencies {
     //WorkManager
     implementation(libs.androidx.work.runtime.ktx)
 
+    //Glance (App Widget)
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
+
     //Navigation 3
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.navigation3.runtime)
