@@ -8,21 +8,24 @@ import ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.DeleteSubscriptionUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetSubscriptionByIdUseCase
 import ir.dekot.eshterakyar.feature_home.presentation.state.SubscriptionDetailUiState
+import ir.dekot.eshterakyar.feature_payment.domain.usecase.GetPaymentLogsUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class SubscriptionDetailViewModel(
-    private val getSubscriptionByIdUseCase: GetSubscriptionByIdUseCase,
-    private val deleteSubscriptionUseCase: DeleteSubscriptionUseCase,
-    private val rootNavigator: RootNavigator
+        private val getSubscriptionByIdUseCase: GetSubscriptionByIdUseCase,
+        private val deleteSubscriptionUseCase: DeleteSubscriptionUseCase,
+        private val getPaymentLogsUseCase: GetPaymentLogsUseCase,
+        private val rootNavigator: RootNavigator
 ) : ViewModel() {
 
-    fun navigateToEditSubscription(id : Long){
+    fun navigateToEditSubscription(id: Long) {
         rootNavigator.navigateTo(destination = Screens.EditSubscription(subscriptionId = id))
     }
-    fun goBack(){
+    fun goBack() {
         rootNavigator.goBack()
     }
     private val _uiState = MutableStateFlow(SubscriptionDetailUiState())
@@ -33,15 +36,15 @@ class SubscriptionDetailViewModel(
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
                 val subscription = getSubscriptionByIdUseCase(subscriptionId)
-                _uiState.value = _uiState.value.copy(
-                    subscription = subscription,
-                    isLoading = false
-                )
+                val paymentLogs = getPaymentLogsUseCase(subscriptionId).first()
+                _uiState.value =
+                        _uiState.value.copy(
+                                subscription = subscription,
+                                paymentLogs = paymentLogs,
+                                isLoading = false
+                        )
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = e.message
-                )
+                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
             }
         }
     }
@@ -53,10 +56,7 @@ class SubscriptionDetailViewModel(
                 deleteSubscriptionUseCase(subscription)
                 _uiState.value = _uiState.value.copy(isDeleting = false)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isDeleting = false,
-                    error = e.message
-                )
+                _uiState.value = _uiState.value.copy(isDeleting = false, error = e.message)
             }
         }
     }

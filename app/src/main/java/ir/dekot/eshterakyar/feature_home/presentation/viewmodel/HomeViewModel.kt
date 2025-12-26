@@ -10,6 +10,7 @@ import ir.dekot.eshterakyar.feature_home.domain.usecase.GetUserGreetingUseCase
 import ir.dekot.eshterakyar.feature_home.presentation.mvi.HomeEffect
 import ir.dekot.eshterakyar.feature_home.presentation.mvi.HomeIntent
 import ir.dekot.eshterakyar.feature_home.presentation.mvi.HomeState
+import ir.dekot.eshterakyar.feature_payment.domain.usecase.RecordPaymentUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +23,8 @@ class HomeViewModel(
         private val getSubscriptionStatsUseCase: GetSubscriptionStatsUseCase,
         private val getInactiveSubscriptionsUseCase: GetInactiveSubscriptionsUseCase,
         private val getNearingRenewalSubscriptionsUseCase: GetNearingRenewalSubscriptionsUseCase,
-        private val getUserGreetingUseCase: GetUserGreetingUseCase
+        private val getUserGreetingUseCase: GetUserGreetingUseCase,
+        private val recordPaymentUseCase: RecordPaymentUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeState())
@@ -47,6 +49,7 @@ class HomeViewModel(
             is HomeIntent.OnToggleSubscriptionStatus -> toggleSubscriptionStatus(intent)
             is HomeIntent.OnSearchQueryChanged -> filterSubscriptions(intent.query)
             is HomeIntent.OnSortOptionChanged -> changeSortOption(intent.option)
+            is HomeIntent.OnPaymentConfirmed -> recordPayment(intent.subscription)
         }
     }
 
@@ -189,5 +192,23 @@ class HomeViewModel(
     private fun toggleSubscriptionStatus(intent: HomeIntent.OnToggleSubscriptionStatus) {
         // Placeholder for toggle logic
         loadData()
+    }
+
+    /** ثبت پرداخت دستی برای یک اشتراک */
+    private fun recordPayment(
+            subscription: ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription
+    ) {
+        viewModelScope.launch {
+            try {
+                recordPaymentUseCase(
+                        subscriptionId = subscription.id,
+                        amount = subscription.price,
+                        note = "پرداخت دستی"
+                )
+                sendEffect(HomeEffect.ShowMessage("پرداخت با موفقیت ثبت شد"))
+            } catch (e: Exception) {
+                sendEffect(HomeEffect.ShowMessage("خطا در ثبت پرداخت: ${e.message}"))
+            }
+        }
     }
 }

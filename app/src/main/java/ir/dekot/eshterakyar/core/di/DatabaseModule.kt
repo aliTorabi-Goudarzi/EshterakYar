@@ -5,6 +5,7 @@ import ir.dekot.eshterakyar.core.database.AppDatabase
 import ir.dekot.eshterakyar.core.database.SubscriptionDao
 import ir.dekot.eshterakyar.core.database.UserDao
 import ir.dekot.eshterakyar.feature_category.data.datasource.CategoryDao
+import ir.dekot.eshterakyar.feature_payment.data.datasource.PaymentLogDao
 import org.koin.dsl.module
 
 val databaseModule = module {
@@ -28,4 +29,7 @@ val databaseModule = module {
 
     // Provide CategoryDao
     single<CategoryDao> { get<AppDatabase>().categoryDao() }
+
+    // Provide PaymentLogDao
+    single<PaymentLogDao> { get<AppDatabase>().paymentLogDao() }
 }

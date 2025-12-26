@@ -77,6 +77,12 @@ sealed interface HomeIntent {
      * @param subscription اشتراک مورد نظر
      */
     data class OnToggleSubscriptionStatus(val subscription: Subscription) : HomeIntent
+
+    /**
+     * ثبت پرداخت دستی (دکمه "پرداخت کردم")
+     * @param subscription اشتراک مورد نظر
+     */
+    data class OnPaymentConfirmed(val subscription: Subscription) : HomeIntent
 }
 
 /** اثرات جانبی (Side Effects) صفحه خانه مثل نویگیشن یا نمایش پیام‌های موقت */

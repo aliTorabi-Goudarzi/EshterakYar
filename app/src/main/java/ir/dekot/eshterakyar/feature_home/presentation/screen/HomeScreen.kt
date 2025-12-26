@@ -392,6 +392,9 @@ fun HomeScreen(uiState: HomeState, onIntent: (HomeIntent) -> Unit) {
                                         onIntent(
                                                 HomeIntent.OnToggleSubscriptionStatus(subscription)
                                         )
+                                    },
+                                    onPaymentConfirm = {
+                                        onIntent(HomeIntent.OnPaymentConfirmed(subscription))
                                     }
                             )
                         }

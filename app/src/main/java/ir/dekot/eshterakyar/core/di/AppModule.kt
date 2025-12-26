@@ -35,6 +35,8 @@ import ir.dekot.eshterakyar.feature_home.domain.usecase.GetUserGreetingUseCase
 import ir.dekot.eshterakyar.feature_home.presentation.viewmodel.EditSubscriptionViewModel
 import ir.dekot.eshterakyar.feature_home.presentation.viewmodel.HomeViewModel
 import ir.dekot.eshterakyar.feature_home.presentation.viewmodel.SubscriptionDetailViewModel
+import ir.dekot.eshterakyar.feature_payment.domain.usecase.GetPaymentLogsUseCase
+import ir.dekot.eshterakyar.feature_payment.domain.usecase.RecordPaymentUseCase
 import ir.dekot.eshterakyar.screens.ProfileDetailViewModel
 import ir.dekot.eshterakyar.screens.ProfileViewModel
 import ir.dekot.eshterakyar.screens.ReportsViewModel
@@ -101,4 +103,8 @@ val appModule = module {
         single { androidx.work.WorkManager.getInstance(androidContext()) }
         singleOf(constructor = ::ScheduleReminderUseCase)
         singleOf(constructor = ::CancelReminderUseCase)
+
+        // Payment Logging
+        singleOf(::RecordPaymentUseCase)
+        singleOf(::GetPaymentLogsUseCase)
 }
