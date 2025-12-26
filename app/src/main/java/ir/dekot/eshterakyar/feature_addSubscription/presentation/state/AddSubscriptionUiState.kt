@@ -91,5 +91,9 @@ data class AddSubscriptionUiState(
         // Selected preset (if any)
         val selectedPreset:
                 ir.dekot.eshterakyar.feature_addSubscription.domain.model.ServicePreset? =
-                null
+                null,
+
+        // وضعیت نمایش هشدار نام تکراری
+        // Duplicate name warning visibility
+        val isDuplicateWarningVisible: Boolean = false
 )

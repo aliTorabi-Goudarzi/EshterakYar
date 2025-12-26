@@ -1,6 +1,9 @@
 package ir.dekot.eshterakyar.feature_home.presentation.components
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +30,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
@@ -46,6 +51,7 @@ import ir.dekot.eshterakyar.core.utils.HapticHelper
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.SubscriptionCategory
 import java.util.Date
+import kotlinx.coroutines.delay
 import sv.lib.squircleshape.CornerSmoothing
 import sv.lib.squircleshape.SquircleShape
 
@@ -62,9 +68,30 @@ fun SubscriptionCard(
         var expanded by remember { mutableStateOf(false) }
         val view = LocalView.current
 
+        // انیمیشن scale برای micro-interaction
+        var isAnimating by remember { mutableStateOf(false) }
+        val scale by
+                animateFloatAsState(
+                        targetValue = if (isAnimating) 1.05f else 1f,
+                        animationSpec =
+                                spring(
+                                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                                        stiffness = Spring.StiffnessMedium
+                                ),
+                        label = "cardScale"
+                )
+
+        // Reset animation after a short delay
+        LaunchedEffect(isAnimating) {
+                if (isAnimating) {
+                        delay(150)
+                        isAnimating = false
+                }
+        }
+
         Card(
                 modifier =
-                        modifier.fillMaxWidth().clickable {
+                        modifier.fillMaxWidth().scale(scale).clickable {
                                 HapticHelper.performClick(view)
                                 onClick()
                         },
@@ -184,6 +211,7 @@ fun SubscriptionCard(
                                                         text = { Text("پرداخت کردم ✅") },
                                                         onClick = {
                                                                 HapticHelper.performConfirm(view)
+                                                                isAnimating = true
                                                                 expanded = false
                                                                 onPaymentConfirm()
                                                         }

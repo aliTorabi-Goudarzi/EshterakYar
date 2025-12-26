@@ -64,6 +64,7 @@ val appModule = module {
 
         // Preferences
         single { CurrencyPreferences(androidContext()) }
+        single { ir.dekot.eshterakyar.core.themePreferences.ThemePreferences(androidContext()) }
 
         // Use Cases
         singleOf(constructor = ::GetAllSubscriptionsUseCase)

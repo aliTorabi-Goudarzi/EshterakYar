@@ -70,4 +70,10 @@ interface SubscriptionRepository {
 
     // Get nearest renewal date (timestamp)
     suspend fun getNearestRenewalDate(): Long?
+
+    // Check if subscription name already exists
+    suspend fun countByName(name: String): Int
+
+    // Check if subscription name already exists (excluding specific ID)
+    suspend fun countByNameExcludingId(name: String, excludeId: Long): Int
 }

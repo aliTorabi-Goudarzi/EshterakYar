@@ -101,4 +101,12 @@ class SubscriptionRepositoryImpl(private val subscriptionDao: SubscriptionDao) :
     override suspend fun getNearestRenewalDate(): Long? {
         return subscriptionDao.getNearestRenewalDate()
     }
+
+    override suspend fun countByName(name: String): Int {
+        return subscriptionDao.countByName(name)
+    }
+
+    override suspend fun countByNameExcludingId(name: String, excludeId: Long): Int {
+        return subscriptionDao.countByNameExcludingId(name, excludeId)
+    }
 }

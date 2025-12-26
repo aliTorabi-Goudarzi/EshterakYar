@@ -87,4 +87,12 @@ sealed class AddSubscriptionIntent {
     // پاک کردن پریست انتخاب شده
     // Clear selected preset
     data object OnPresetCleared : AddSubscriptionIntent()
+
+    // بستن هشدار نام تکراری
+    // Dismiss duplicate warning
+    data object OnDuplicateWarningDismissed : AddSubscriptionIntent()
+
+    // تایید ذخیره با نام تکراری
+    // Confirm save with duplicate name
+    data object OnDuplicateWarningConfirmed : AddSubscriptionIntent()
 }

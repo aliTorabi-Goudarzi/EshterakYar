@@ -32,6 +32,9 @@ class ThemePreferences(private val context: Context) {
     // کلید قدیمی برای سازگاری با نسخه‌های قبلی
     private val LEGACY_IS_DARK_THEME = booleanPreferencesKey("is_dark_theme")
 
+    // کلید برای آنبوردینگ
+    private val HAS_SEEN_ONBOARDING_KEY = booleanPreferencesKey("has_seen_onboarding")
+
     /**
      * جریان (Flow) برای خواندن حالت فعلی تم
      *
@@ -54,6 +57,12 @@ class ThemePreferences(private val context: Context) {
                 }
             }
 
+    /** چک کردن اینکه آیا کاربر آنبوردینگ را دیده است */
+    val hasSeenOnboarding: Flow<Boolean> =
+            context.themeDataStore.data.map { preferences ->
+                preferences[HAS_SEEN_ONBOARDING_KEY] ?: false
+            }
+
     /**
      * تابع برای ذخیره حالت تم جدید
      *
@@ -67,6 +76,11 @@ class ThemePreferences(private val context: Context) {
         }
     }
 
+    /** علامت‌گذاری آنبوردینگ به عنوان دیده شده */
+    suspend fun setHasSeenOnboarding(seen: Boolean) {
+        context.themeDataStore.edit { preferences -> preferences[HAS_SEEN_ONBOARDING_KEY] = seen }
+    }
+
     /**
      * دریافت حالت تم به صورت همزمان (برای استفاده در ابتدای اپ)
      *
@@ -74,5 +88,10 @@ class ThemePreferences(private val context: Context) {
      */
     suspend fun getThemeModeSync(): ThemeMode {
         return themeMode.first()
+    }
+
+    /** دریافت وضعیت آنبوردینگ به صورت همزمان */
+    suspend fun getHasSeenOnboardingSync(): Boolean {
+        return hasSeenOnboarding.first()
     }
 }

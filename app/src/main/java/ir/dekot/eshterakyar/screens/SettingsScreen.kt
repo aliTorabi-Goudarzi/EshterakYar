@@ -19,6 +19,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
@@ -46,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.dekot.eshterakyar.core.navigation.RootNavigator
+import ir.dekot.eshterakyar.core.navigation.Screens
 import ir.dekot.eshterakyar.core.themePreferences.ThemeModeSelector
 import ir.dekot.eshterakyar.core.themePreferences.ThemeViewModel
 import ir.dekot.eshterakyar.core.utils.Currency
@@ -173,6 +175,56 @@ fun SettingsScreen(
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = theme.onSurfaceVariant
                                 )
+                        }
+
+                        // Support Card
+                        SettingsCard(
+                                title = "پشتیبانی",
+                                icon = Icons.Default.Email,
+                                onClick = { rootNavigator.navigateTo(Screens.Support) }
+                        ) {
+                                Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                        Text(
+                                                text = "ارتباط با ما و ارسال بازخورد",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = theme.onSurfaceVariant
+                                        )
+                                        Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                contentDescription = null,
+                                                tint = theme.onSurfaceVariant,
+                                                modifier = Modifier.scale(-1f, 1f)
+                                        )
+                                }
+                        }
+
+                        // Privacy Policy Card
+                        SettingsCard(
+                                title = "حریم خصوصی",
+                                icon = Icons.Default.Settings,
+                                onClick = { rootNavigator.navigateTo(Screens.PrivacyPolicy) }
+                        ) {
+                                Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                        Text(
+                                                text = "سیاست حفظ حریم خصوصی",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = theme.onSurfaceVariant
+                                        )
+                                        Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                contentDescription = null,
+                                                tint = theme.onSurfaceVariant,
+                                                modifier = Modifier.scale(-1f, 1f)
+                                        )
+                                }
                         }
 
                         Spacer(modifier = Modifier.height(32.dp))
@@ -356,12 +408,18 @@ private fun SettingsTopBar(onBack: () -> Unit) {
 private fun SettingsCard(
         title: String,
         icon: androidx.compose.ui.graphics.vector.ImageVector,
+        onClick: (() -> Unit)? = null,
         content: @Composable () -> Unit
 ) {
         val theme = LocalTheme.current
 
         Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier =
+                        Modifier.fillMaxWidth()
+                                .then(
+                                        if (onClick != null) Modifier.clickable { onClick() }
+                                        else Modifier
+                                ),
                 colors = CardDefaults.cardColors(containerColor = theme.surfaceVariant),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {

@@ -3,12 +3,17 @@ package ir.dekot.eshterakyar.core.di
 import ir.dekot.eshterakyar.core.navigation.NestedGraph
 import ir.dekot.eshterakyar.core.navigation.RootNavigator
 import ir.dekot.eshterakyar.core.navigation.Screens
+import ir.dekot.eshterakyar.core.themePreferences.ThemePreferences
 import ir.dekot.eshterakyar.feature_category.presentation.screen.CategoryManagementScreen
 import ir.dekot.eshterakyar.feature_home.presentation.screen.EditSubscriptionScreen
 import ir.dekot.eshterakyar.feature_home.presentation.screen.SubscriptionDetailScreen
+import ir.dekot.eshterakyar.feature_onboarding.presentation.screen.OnboardingScreen
 import ir.dekot.eshterakyar.screens.ProfileDetailScreen
 import ir.dekot.eshterakyar.screens.SettingsScreen
 import ir.dekot.eshterakyar.screens.personalInfo.screen.PersonalInformationRoute
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.dsl.module
 import org.koin.dsl.navigation3.navigation
@@ -42,5 +47,30 @@ val rootNavigationModule = module {
 
     navigation<Screens.CategoryManagement> {
         CategoryManagementScreen(rootNavigator = get<RootNavigator>())
+    }
+
+    navigation<Screens.Onboarding> {
+        val rootNavigator: RootNavigator = get()
+        val themePreferences: ThemePreferences = get()
+        OnboardingScreen(
+                onComplete = {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        themePreferences.setHasSeenOnboarding(true)
+                    }
+                    rootNavigator.navigateTo(Screens.NestedGraph)
+                }
+        )
+    }
+
+    navigation<Screens.Support> {
+        ir.dekot.eshterakyar.feature_support.presentation.screen.SupportScreen(
+                rootNavigator = get<RootNavigator>()
+        )
+    }
+
+    navigation<Screens.PrivacyPolicy> {
+        ir.dekot.eshterakyar.feature_privacy.presentation.screen.PrivacyPolicyScreen(
+                rootNavigator = get<RootNavigator>()
+        )
     }
 }

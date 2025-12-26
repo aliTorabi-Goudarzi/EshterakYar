@@ -23,7 +23,9 @@ class AddSubscriptionViewModel(
         private val getSubscriptionsSortedByCreationUseCase:
                 GetSubscriptionsSortedByCreationUseCase,
         private val deleteSubscriptionUseCase: DeleteSubscriptionUseCase,
-        private val getServicePresetsUseCase: GetServicePresetsUseCase
+        private val getServicePresetsUseCase: GetServicePresetsUseCase,
+        private val subscriptionRepository:
+                ir.dekot.eshterakyar.feature_addSubscription.domain.repository.SubscriptionRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddSubscriptionUiState())
@@ -58,7 +60,7 @@ class AddSubscriptionViewModel(
             is AddSubscriptionIntent.OnCategoryChanged -> updateCategory(intent.category)
             AddSubscriptionIntent.OnNextStep -> onNextStep()
             AddSubscriptionIntent.OnPreviousStep -> onPreviousStep()
-            AddSubscriptionIntent.OnSaveClicked -> saveSubscription()
+            AddSubscriptionIntent.OnSaveClicked -> checkDuplicateAndSave()
             AddSubscriptionIntent.OnErrorDismissed -> clearError()
             AddSubscriptionIntent.OnSuccessDismissed -> resetSaveSuccess()
             is AddSubscriptionIntent.OnPresetSelected -> onPresetSelected(intent.preset)
@@ -85,6 +87,13 @@ class AddSubscriptionViewModel(
                 // Navigation is handled by UI (SideEffect), but we close the sheet
                 _uiState.value =
                         _uiState.value.copy(isBottomSheetOpen = false, selectedSubscription = null)
+            }
+            AddSubscriptionIntent.OnDuplicateWarningDismissed -> {
+                _uiState.value = _uiState.value.copy(isDuplicateWarningVisible = false)
+            }
+            AddSubscriptionIntent.OnDuplicateWarningConfirmed -> {
+                _uiState.value = _uiState.value.copy(isDuplicateWarningVisible = false)
+                saveSubscription()
             }
         }
     }
@@ -206,6 +215,27 @@ class AddSubscriptionViewModel(
         _uiState.value = _uiState.value.copy(nameError = nameError, priceError = priceError)
 
         return nameError == null && priceError == null
+    }
+
+    /** بررسی نام تکراری قبل از ذخیره */
+    private fun checkDuplicateAndSave() {
+        if (!validateAndSave()) return
+
+        viewModelScope.launch {
+            try {
+                val count = subscriptionRepository.countByName(_uiState.value.name)
+                if (count > 0) {
+                    // نام تکراری است - نمایش هشدار
+                    _uiState.value = _uiState.value.copy(isDuplicateWarningVisible = true)
+                } else {
+                    // نام تکراری نیست - ذخیره مستقیم
+                    saveSubscription()
+                }
+            } catch (e: Exception) {
+                // در صورت خطا، ذخیره بدون چک
+                saveSubscription()
+            }
+        }
     }
 
     private fun saveSubscription() {

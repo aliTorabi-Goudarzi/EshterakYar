@@ -18,4 +18,10 @@ sealed class Screens {
     @Serializable data object PersonalInformation : Screens()
 
     @Serializable data object CategoryManagement : Screens()
+
+    @Serializable data object Onboarding : Screens()
+
+    @Serializable data object Support : Screens()
+
+    @Serializable data object PrivacyPolicy : Screens()
 }
