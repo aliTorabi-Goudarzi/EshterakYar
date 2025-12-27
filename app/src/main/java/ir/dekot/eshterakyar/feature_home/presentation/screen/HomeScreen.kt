@@ -56,6 +56,17 @@ import ir.dekot.eshterakyar.feature_home.presentation.viewmodel.HomeViewModel
 import kotlin.math.min
 import org.koin.androidx.compose.koinViewModel
 
+/**
+ * وضعیت ساختاری محتوا برای انیمیشن Crossfade فقط تغییرات ساختاری (بارگذاری/خطا/خالی/محتوا) باعث
+ * انیمیشن می‌شوند
+ */
+private sealed interface ContentState {
+    data object Loading : ContentState
+    data object Error : ContentState
+    data object Empty : ContentState
+    data object Content : ContentState
+}
+
 @Composable
 fun HomeRoute(
         viewModel: HomeViewModel = koinViewModel(),
@@ -130,14 +141,23 @@ fun HomeScreen(uiState: HomeState, onIntent: (HomeIntent) -> Unit) {
             )
         }
 
+        // Determine content state for Crossfade (only structural changes trigger animation)
+        val contentState =
+                when {
+                    uiState.isLoading -> ContentState.Loading
+                    uiState.error != null -> ContentState.Error
+                    uiState.subscriptions.isEmpty() -> ContentState.Empty
+                    else -> ContentState.Content
+                }
+
         // Main content with parallax effect
         Crossfade(
-                targetState = uiState,
+                targetState = contentState,
                 animationSpec = tween(durationMillis = 300),
-                label = "uiState"
-        ) { state ->
-            when {
-                state.isLoading -> {
+                label = "contentState"
+        ) { currentState ->
+            when (currentState) {
+                ContentState.Loading -> {
                     Box(
                             modifier =
                                     Modifier.fillMaxSize()
@@ -151,7 +171,7 @@ fun HomeScreen(uiState: HomeState, onIntent: (HomeIntent) -> Unit) {
                             contentAlignment = Alignment.Center
                     ) { CircularProgressIndicator(color = theme.primary) }
                 }
-                state.error != null -> {
+                ContentState.Error -> {
                     Box(
                             modifier =
                                     Modifier.fillMaxSize()
@@ -174,7 +194,7 @@ fun HomeScreen(uiState: HomeState, onIntent: (HomeIntent) -> Unit) {
                             Spacer(modifier = Modifier.height(8.dp))
 
                             Text(
-                                    text = state.error,
+                                    text = uiState.error ?: "",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onErrorContainer
                             )
@@ -185,7 +205,7 @@ fun HomeScreen(uiState: HomeState, onIntent: (HomeIntent) -> Unit) {
                         }
                     }
                 }
-                state.subscriptions.isEmpty() -> {
+                ContentState.Empty -> {
                     Box(
                             modifier =
                                     Modifier.fillMaxSize()
@@ -226,7 +246,7 @@ fun HomeScreen(uiState: HomeState, onIntent: (HomeIntent) -> Unit) {
                         }
                     }
                 }
-                else -> {
+                ContentState.Content -> {
                     LazyColumn(
                             state = listState,
                             modifier =
@@ -253,14 +273,14 @@ fun HomeScreen(uiState: HomeState, onIntent: (HomeIntent) -> Unit) {
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         // Compact stats card
-                        if (state.stats != null) {
+                        if (uiState.stats != null) {
                             item {
                                 CompactStatsCard(
-                                        totalBudget = 500000.0, // 500,000 تومان
-                                        currentSpent = state.stats.totalMonthlyCost,
-                                        activeCount = state.stats.activeCount,
-                                        inactiveCount = state.inactiveCount,
-                                        nearingRenewalCount = state.nearingRenewalCount,
+                                        totalBudget = uiState.budget,
+                                        currentSpent = uiState.stats!!.totalMonthlyCost,
+                                        activeCount = uiState.stats!!.activeCount,
+                                        inactiveCount = uiState.inactiveCount,
+                                        nearingRenewalCount = uiState.nearingRenewalCount,
                                         modifier = Modifier.fillMaxWidth()
                                 )
                             }
@@ -280,7 +300,7 @@ fun HomeScreen(uiState: HomeState, onIntent: (HomeIntent) -> Unit) {
                         // Search bar
                         item {
                             OutlinedTextField(
-                                    value = state.searchQuery,
+                                    value = uiState.searchQuery,
                                     onValueChange = {
                                         onIntent(HomeIntent.OnSearchQueryChanged(it))
                                     },
@@ -298,7 +318,7 @@ fun HomeScreen(uiState: HomeState, onIntent: (HomeIntent) -> Unit) {
                                         )
                                     },
                                     trailingIcon = {
-                                        if (state.searchQuery.isNotEmpty()) {
+                                        if (uiState.searchQuery.isNotEmpty()) {
                                             IconButton(
                                                     onClick = {
                                                         onIntent(
@@ -327,7 +347,7 @@ fun HomeScreen(uiState: HomeState, onIntent: (HomeIntent) -> Unit) {
                                 androidx.compose.material3.FilterChip(
                                         selected = true,
                                         onClick = { expanded = true },
-                                        label = { Text(state.selectedSortOption.persianName) },
+                                        label = { Text(uiState.selectedSortOption.persianName) },
                                         leadingIcon = {
                                             Icon(
                                                     imageVector =
@@ -356,7 +376,7 @@ fun HomeScreen(uiState: HomeState, onIntent: (HomeIntent) -> Unit) {
                                                             expanded = false
                                                         },
                                                         leadingIcon = {
-                                                            if (option == state.selectedSortOption
+                                                            if (option == uiState.selectedSortOption
                                                             ) {
                                                                 Icon(
                                                                         imageVector =
@@ -372,7 +392,7 @@ fun HomeScreen(uiState: HomeState, onIntent: (HomeIntent) -> Unit) {
                             }
                         }
                         // Subscription cards
-                        items(state.filteredSubscriptions) { subscription ->
+                        items(uiState.filteredSubscriptions) { subscription ->
                             SubscriptionCard(
                                     subscription = subscription,
                                     onClick = {

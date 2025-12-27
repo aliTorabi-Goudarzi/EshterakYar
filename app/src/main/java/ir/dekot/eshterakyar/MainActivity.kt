@@ -8,6 +8,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.dekot.eshterakyar.core.navigation.EshterakYarApp
@@ -17,12 +19,22 @@ import ir.dekot.eshterakyar.core.themePreferences.ThemeViewModel
 import ir.dekot.eshterakyar.core.utils.LocalTheme
 import ir.dekot.eshterakyar.core.utils.darkThemeColor
 import ir.dekot.eshterakyar.core.utils.lightThemeColor
+import java.util.Locale
 import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // تنظیم زبان فارسی برای اپلیکیشن (RTL)
+        val persianLocale = Locale("fa", "IR")
+        Locale.setDefault(persianLocale)
+        val config = resources.configuration
+        config.setLocale(persianLocale)
+        config.setLayoutDirection(persianLocale)
+        resources.updateConfiguration(config, resources.displayMetrics)
+
         enableEdgeToEdge()
         // Status bar رو transparent کن
         window.statusBarColor = Color.TRANSPARENT
@@ -50,9 +62,11 @@ class MainActivity : ComponentActivity() {
                 isAppearanceLightStatusBars = !isDark
             }
 
-            CompositionLocalProvider(LocalTheme provides themeColors) {
-                EshterakYarTheme(darkTheme = isDark) { EshterakYarApp() }
-            }
+            // تنظیم RTL برای تمام Compose UI
+            CompositionLocalProvider(
+                    LocalLayoutDirection provides LayoutDirection.Rtl,
+                    LocalTheme provides themeColors
+            ) { EshterakYarTheme(darkTheme = isDark) { EshterakYarApp() } }
         }
     }
 }

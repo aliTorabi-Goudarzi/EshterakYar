@@ -2,6 +2,7 @@ package ir.dekot.eshterakyar.feature_home.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ir.dekot.eshterakyar.core.domain.usecase.GetBudgetUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetActiveSubscriptionsUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetInactiveSubscriptionsUseCase
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.GetNearingRenewalSubscriptionsUseCase
@@ -24,7 +25,8 @@ class HomeViewModel(
         private val getInactiveSubscriptionsUseCase: GetInactiveSubscriptionsUseCase,
         private val getNearingRenewalSubscriptionsUseCase: GetNearingRenewalSubscriptionsUseCase,
         private val getUserGreetingUseCase: GetUserGreetingUseCase,
-        private val recordPaymentUseCase: RecordPaymentUseCase
+        private val recordPaymentUseCase: RecordPaymentUseCase,
+        private val getBudgetUseCase: GetBudgetUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeState())
@@ -35,6 +37,7 @@ class HomeViewModel(
 
     init {
         loadData()
+        observeBudget()
     }
 
     fun onIntent(intent: HomeIntent) {
@@ -59,6 +62,14 @@ class HomeViewModel(
         loadStats()
         loadGreeting()
         loadAdditionalStats()
+    }
+
+    private fun observeBudget() {
+        viewModelScope.launch {
+            getBudgetUseCase().collect { budget ->
+                _uiState.value = _uiState.value.copy(budget = budget)
+            }
+        }
     }
 
     private fun sendEffect(effect: HomeEffect) {

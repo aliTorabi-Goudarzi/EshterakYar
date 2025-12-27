@@ -1,6 +1,7 @@
 package ir.dekot.eshterakyar.feature_home.presentation.mvi
 
 import androidx.compose.runtime.Immutable
+import ir.dekot.eshterakyar.core.preferences.BudgetPreferences
 import ir.dekot.eshterakyar.feature_addSubscription.domain.model.Subscription
 import ir.dekot.eshterakyar.feature_addSubscription.domain.usecase.SubscriptionStats
 import ir.dekot.eshterakyar.feature_home.domain.model.UserGreeting
@@ -25,6 +26,7 @@ enum class SortOption(val persianName: String) {
  * @param greeting پیام خوش‌آمدگویی به کاربر
  * @param inactiveCount تعداد اشتراک‌های غیرفعال
  * @param nearingRenewalCount تعداد اشتراک‌های در حال تمدید
+ * @param budget بودجه ماهانه کاربر
  * @param isLoading وضعیت بارگذاری داده‌ها
  * @param error پیام خطا در صورت بروز مشکل
  */
@@ -38,6 +40,7 @@ data class HomeState(
         val greeting: UserGreeting? = null,
         val inactiveCount: Int = 0,
         val nearingRenewalCount: Int = 0,
+        val budget: Double = BudgetPreferences.DEFAULT_BUDGET,
         val isLoading: Boolean = true,
         val error: String? = null
 )

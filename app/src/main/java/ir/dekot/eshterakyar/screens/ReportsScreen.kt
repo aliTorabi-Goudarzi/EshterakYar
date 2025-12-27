@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.dekot.eshterakyar.feature_home.presentation.components.StatsCard
+import ir.dekot.eshterakyar.screens.components.BudgetSettingCard
 import ir.dekot.eshterakyar.screens.components.CategoryBreakdownChart
 import org.koin.androidx.compose.koinViewModel
 
@@ -92,10 +93,26 @@ fun ReportsScreen(viewModel: ReportsViewModel = koinViewModel()) {
                             )
                         }
 
+                        // Budget setting card
+                        item {
+                            BudgetSettingCard(
+                                    currentBudget = state.budget,
+                                    currentSpent = state.stats?.totalMonthlyCost ?: 0.0,
+                                    onBudgetChange = { newBudget ->
+                                        viewModel.updateBudget(newBudget)
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+
                         // Stats card
                         if (state.stats != null) {
                             item {
-                                StatsCard(stats = state.stats, modifier = Modifier.fillMaxWidth())
+                                StatsCard(
+                                        stats = state.stats,
+                                        budget = state.budget,
+                                        modifier = Modifier.fillMaxWidth()
+                                )
                             }
                         }
 

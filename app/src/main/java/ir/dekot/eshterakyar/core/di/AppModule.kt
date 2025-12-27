@@ -1,9 +1,12 @@
 package ir.dekot.eshterakyar.core.di
 
 import ir.dekot.eshterakyar.core.database.GetUserUseCase
+import ir.dekot.eshterakyar.core.domain.usecase.GetBudgetUseCase
 import ir.dekot.eshterakyar.core.domain.usecase.GetPreferredCurrencyUseCase
+import ir.dekot.eshterakyar.core.domain.usecase.SetBudgetUseCase
 import ir.dekot.eshterakyar.core.domain.usecase.SetPreferredCurrencyUseCase
 import ir.dekot.eshterakyar.core.domain.usecase.UpdateUserUseCase
+import ir.dekot.eshterakyar.core.preferences.BudgetPreferences
 import ir.dekot.eshterakyar.core.preferences.CurrencyPreferences
 import ir.dekot.eshterakyar.core.themePreferences.ThemeViewModel
 import ir.dekot.eshterakyar.feature_addSubscription.data.repository.ServicePresetRepositoryImpl
@@ -64,6 +67,7 @@ val appModule = module {
 
         // Preferences
         single { CurrencyPreferences(androidContext()) }
+        single { BudgetPreferences(androidContext()) }
         single { ir.dekot.eshterakyar.core.themePreferences.ThemePreferences(androidContext()) }
 
         // Use Cases
@@ -99,6 +103,10 @@ val appModule = module {
         // Currency related
         singleOf(constructor = ::GetPreferredCurrencyUseCase)
         singleOf(constructor = ::SetPreferredCurrencyUseCase)
+
+        // Budget related
+        singleOf(constructor = ::GetBudgetUseCase)
+        singleOf(constructor = ::SetBudgetUseCase)
 
         // WorkManager & Reminder related
         single { androidx.work.WorkManager.getInstance(androidContext()) }
