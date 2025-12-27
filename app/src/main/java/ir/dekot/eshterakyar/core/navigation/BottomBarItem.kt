@@ -7,10 +7,10 @@ import kotlinx.serialization.Serializable
 
 
 val bottomBarList: List<BottomBarItem> = listOf(
-    BottomBarItem.Profile,
-    BottomBarItem.Reports,
+    BottomBarItem.Home,
     BottomBarItem.AddSubscription,
-    BottomBarItem.Home
+    BottomBarItem.Reports,
+    BottomBarItem.Profile,
 )
 
 @Serializable

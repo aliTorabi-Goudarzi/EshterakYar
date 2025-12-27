@@ -70,7 +70,12 @@ fun ReportsScreen(viewModel: ReportsViewModel = koinViewModel()) {
                     LazyColumn(
                             modifier = Modifier.fillMaxSize(),
                             contentPadding =
-                                    androidx.compose.foundation.layout.PaddingValues(16.dp),
+                                    androidx.compose.foundation.layout.PaddingValues(
+                                            start = 16.dp,
+                                            top = 16.dp,
+                                            end = 16.dp,
+                                            bottom = 100.dp // فضای اضافی برای نوار پایین
+                                    ),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         item {

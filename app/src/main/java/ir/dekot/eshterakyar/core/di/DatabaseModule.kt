@@ -17,7 +17,6 @@ val databaseModule = module {
                         klass = AppDatabase::class.java,
                         name = "eshterakyar_database"
                 )
-                .fallbackToDestructiveMigration()
                 .build()
     }
 

@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +41,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -53,140 +55,139 @@ import kotlinx.coroutines.flow.emptyFlow
 
 @Composable
 fun AnimatedNavigationBar(
-    navigateTo: (BottomBarItem) -> Unit,
-    modifier: Modifier = Modifier,
-    barColor: Color,
-    circleColor: Color,
-    selectedColor: Color,
-    unselectedColor: Color,
-    nestedNavigator: NestedNavigator
+        navigateTo: (BottomBarItem) -> Unit,
+        modifier: Modifier = Modifier,
+        barColor: Color,
+        circleColor: Color,
+        selectedColor: Color,
+        unselectedColor: Color,
+        nestedNavigator: NestedNavigator
 ) {
-    val currentBottomBarScreen = nestedNavigator.currentDestination
+    // محاسبات انیمیشن بر اساس LTR هستند، پس این کامپوننت را در LTR رندر می‌کنیم
+    // آیتم‌ها برای RTL معکوس می‌شوند تا ترتیب صحیح باشد
+    val reversedBottomBarList = remember { bottomBarList.reversed() }
 
-    // Convert your screens to ButtonData format
-    val buttons = remember {
-        bottomBarList.map { screen ->
-            ButtonData(icon = screen.icon)
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+        val currentBottomBarScreen = nestedNavigator.currentDestination
+
+        // Convert your screens to ButtonData format (معکوس شده برای RTL)
+        val buttons = remember {
+            reversedBottomBarList.map { screen -> ButtonData(icon = screen.icon) }
         }
-    }
 
-    val circleRadius = 28.dp
-    val selectedItem = bottomBarList.indexOfFirst { it == currentBottomBarScreen }.let {
-        if (it == -1) 0 else it
-    }
-
-    var barSize by remember { mutableStateOf(IntSize(0, 0)) }
-
-    // First item's center offset for Arrangement.SpaceAround
-    val offsetStep = remember(barSize) {
-        barSize.width.toFloat() / (buttons.size * 2)
-    }
-
-    val offset = remember(selectedItem, offsetStep) {
-        offsetStep + selectedItem * 2 * offsetStep
-    }
-
-    val circleRadiusPx = LocalDensity.current.run { circleRadius.toPx().toInt() }
-    val offsetTransition = updateTransition(offset, "offset transition")
-    val animation = spring<Float>(dampingRatio = 0.7f, stiffness = Spring.StiffnessVeryLow)
-
-    val cutoutOffset by offsetTransition.animateFloat(
-        transitionSpec = {
-            if (this.initialState == 0f) {
-                snap()
-            } else {
-                animation
-            }
-        },
-        label = "cutout offset"
-    ) { it }
-
-    val adjustmentPx = LocalDensity.current.run { 25.dp.toPx().toInt() }
-
-    val circleOffset by offsetTransition.animateIntOffset(
-        transitionSpec = {
-            if (this.initialState == 0f) {
-                snap()
-            } else {
-                spring(animation.dampingRatio, animation.stiffness)
-            }
-        },
-        label = "circle offset"
-    ) {
-        IntOffset(it.toInt() - circleRadiusPx, -circleRadiusPx+adjustmentPx)
-    }
-
-    val barShape = remember(cutoutOffset) {
-        BarShape(
-            offset = cutoutOffset,
-            circleRadius = circleRadius,
-            cornerRadius = 25.dp,
-        )
-    }
-
-    Box(modifier = modifier) {
-        Circle(
-            modifier = Modifier
-                .offset { circleOffset }
-                .zIndex(1f)
-                ,
-            color = circleColor,
-            radius = circleRadius,
-            button = buttons[selectedItem],
-            iconColor = selectedColor,
-        )
-
-        Row(
-            modifier = Modifier
-                .onPlaced { barSize = it.size }
-                .graphicsLayer {
-                    shape = barShape
-                    clip = true
-                    alpha = 0.99f // لازم برای شفافیت با hardware acceleration
+        val circleRadius = 28.dp
+        val selectedItem =
+                reversedBottomBarList.indexOfFirst { it == currentBottomBarScreen }.let {
+                    if (it == -1) 0 else it
                 }
-                .fillMaxWidth()
-                .drawWithContent {
-                    // کل پیکسل‌های شکل رو رنگ کن ولی سوراخ رو کاملاً خالی بذار
-                    val outline = barShape.createOutline(size, layoutDirection, this)
-                    if (outline is Outline.Generic) {
-                        drawPath(outline.path, barColor)
 
-                    }
-                    drawContent()
-                },
-            horizontalArrangement = Arrangement.SpaceAround,
-        ) {
-            buttons.forEachIndexed { index, button ->
-                val screen = bottomBarList[index]
-                val isSelected = currentBottomBarScreen == screen
+        var barSize by remember { mutableStateOf(IntSize(0, 0)) }
 
-                NavigationBarItem(
-                    selected = currentBottomBarScreen == screen,
-                    onClick = {
-                        navigateTo(screen)
+        // First item's center offset for Arrangement.SpaceAround
+        val offsetStep = remember(barSize) { barSize.width.toFloat() / (buttons.size * 2) }
+
+        val offset =
+                remember(selectedItem, offsetStep) { offsetStep + selectedItem * 2 * offsetStep }
+
+        val circleRadiusPx = LocalDensity.current.run { circleRadius.toPx().toInt() }
+        val offsetTransition = updateTransition(offset, "offset transition")
+        val animation = spring<Float>(dampingRatio = 0.7f, stiffness = Spring.StiffnessVeryLow)
+
+        val cutoutOffset by
+                offsetTransition.animateFloat(
+                        transitionSpec = {
+                            if (this.initialState == 0f) {
+                                snap()
+                            } else {
+                                animation
+                            }
                         },
-                    icon = {
-                        val iconAlpha by animateFloatAsState(
-                            targetValue = if (isSelected) 0f else 1f,
-                            label = "Navbar item icon"
-                        )
-                        button.icon
-                        Icon(
-                            painter = painterResource(id = button.icon) ,
-                            contentDescription = "",
-                            modifier = Modifier.alpha(iconAlpha).size(31.dp)
-                        )
-                    },
-//                    label = { Text(button.text) },
-                    colors = NavigationBarItemDefaults.colors().copy(
-                        selectedIconColor = selectedColor,
-                        selectedTextColor = selectedColor,
-                        unselectedIconColor = unselectedColor,
-                        unselectedTextColor = unselectedColor,
-                        selectedIndicatorColor = Color.Transparent,
-                    ),
-                    interactionSource = remember { NoRippleInteractionSource() }
-                )
+                        label = "cutout offset"
+                ) { it }
+
+        val adjustmentPx = LocalDensity.current.run { 25.dp.toPx().toInt() }
+
+        val circleOffset by
+                offsetTransition.animateIntOffset(
+                        transitionSpec = {
+                            if (this.initialState == 0f) {
+                                snap()
+                            } else {
+                                spring(animation.dampingRatio, animation.stiffness)
+                            }
+                        },
+                        label = "circle offset"
+                ) { IntOffset(it.toInt() - circleRadiusPx, -circleRadiusPx + adjustmentPx) }
+
+        val barShape =
+                remember(cutoutOffset) {
+                    BarShape(
+                            offset = cutoutOffset,
+                            circleRadius = circleRadius,
+                            cornerRadius = 25.dp,
+                    )
+                }
+
+        Box(modifier = modifier) {
+            Circle(
+                    modifier = Modifier.offset { circleOffset }.zIndex(1f),
+                    color = circleColor,
+                    radius = circleRadius,
+                    button = buttons[selectedItem],
+                    iconColor = selectedColor,
+            )
+
+            Row(
+                    modifier =
+                            Modifier.onPlaced { barSize = it.size }
+                                    .graphicsLayer {
+                                        shape = barShape
+                                        clip = true
+                                        alpha = 0.99f // لازم برای شفافیت با hardware acceleration
+                                    }
+                                    .fillMaxWidth()
+                                    .drawWithContent {
+                                        // کل پیکسل‌های شکل رو رنگ کن ولی سوراخ رو کاملاً خالی بذار
+                                        val outline =
+                                                barShape.createOutline(size, layoutDirection, this)
+                                        if (outline is Outline.Generic) {
+                                            drawPath(outline.path, barColor)
+                                        }
+                                        drawContent()
+                                    },
+                    horizontalArrangement = Arrangement.SpaceAround,
+            ) {
+                buttons.forEachIndexed { index, button ->
+                    val screen = reversedBottomBarList[index]
+                    val isSelected = currentBottomBarScreen == screen
+
+                    NavigationBarItem(
+                            selected = currentBottomBarScreen == screen,
+                            onClick = { navigateTo(screen) },
+                            icon = {
+                                val iconAlpha by
+                                        animateFloatAsState(
+                                                targetValue = if (isSelected) 0f else 1f,
+                                                label = "Navbar item icon"
+                                        )
+                                Icon(
+                                        painter = painterResource(id = button.icon),
+                                        contentDescription = "",
+                                        modifier = Modifier.alpha(iconAlpha).size(31.dp)
+                                )
+                            },
+                            colors =
+                                    NavigationBarItemDefaults.colors()
+                                            .copy(
+                                                    selectedIconColor = selectedColor,
+                                                    selectedTextColor = selectedColor,
+                                                    unselectedIconColor = unselectedColor,
+                                                    unselectedTextColor = unselectedColor,
+                                                    selectedIndicatorColor = Color.Transparent,
+                                            ),
+                            interactionSource = remember { NoRippleInteractionSource() }
+                    )
+                }
             }
         }
     }
@@ -194,19 +195,19 @@ fun AnimatedNavigationBar(
 
 // ButtonData class (اگه قبلاً نداری اضافه کن)
 data class ButtonData(val icon: Int)
-//val text: String,
+
 // BarShape class (همون کد قبلی)
 private class BarShape(
-    private val offset: Float,
-    private val circleRadius: Dp,
-    private val cornerRadius: Dp,
-    private val circleGap: Dp = 38.dp,
+        private val offset: Float,
+        private val circleRadius: Dp,
+        private val cornerRadius: Dp,
+        private val circleGap: Dp = 38.dp,
 ) : Shape {
 
     override fun createOutline(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density
+            size: Size,
+            layoutDirection: LayoutDirection,
+            density: Density
     ): Outline {
         return Outline.Generic(getPath(size, density))
     }
@@ -225,58 +226,62 @@ private class BarShape(
             moveTo(x = 0F, y = size.height)
             // top left
             if (cutoutLeftX > 0) {
-                val realLeftCornerDiameter = if (cutoutLeftX >= cornerRadiusPx) {
-                    cornerDiameter
-                } else {
-                    cutoutLeftX * 2
-                }
+                val realLeftCornerDiameter =
+                        if (cutoutLeftX >= cornerRadiusPx) {
+                            cornerDiameter
+                        } else {
+                            cutoutLeftX * 2
+                        }
                 arcTo(
-                    rect = Rect(
-                        left = 0f,
-                        top = 0f,
-                        right = realLeftCornerDiameter,
-                        bottom = realLeftCornerDiameter
-                    ),
-                    startAngleDegrees = 180.0f,
-                    sweepAngleDegrees = 90.0f,
-                    forceMoveTo = false
+                        rect =
+                                Rect(
+                                        left = 0f,
+                                        top = 0f,
+                                        right = realLeftCornerDiameter,
+                                        bottom = realLeftCornerDiameter
+                                ),
+                        startAngleDegrees = 180.0f,
+                        sweepAngleDegrees = 90.0f,
+                        forceMoveTo = false
                 )
             }
             lineTo(cutoutLeftX, 0f)
             // cutout
             cubicTo(
-                x1 = cutoutCenterX - cutoutRadius*0.7f,
-                y1 = 0f,
-                x2 = cutoutCenterX - cutoutRadius*0.7f,
-                y2 = cutoutRadius,
-                x3 = cutoutCenterX,
-                y3 = cutoutRadius,
+                    x1 = cutoutCenterX - cutoutRadius * 0.7f,
+                    y1 = 0f,
+                    x2 = cutoutCenterX - cutoutRadius * 0.7f,
+                    y2 = cutoutRadius,
+                    x3 = cutoutCenterX,
+                    y3 = cutoutRadius,
             )
             cubicTo(
-                x1 = cutoutCenterX + cutoutRadius*0.7f,
-                y1 = cutoutRadius,
-                x2 = cutoutCenterX + cutoutRadius*0.7f,
-                y2 = 0f,
-                x3 = cutoutRightX,
-                y3 = 0f,
+                    x1 = cutoutCenterX + cutoutRadius * 0.7f,
+                    y1 = cutoutRadius,
+                    x2 = cutoutCenterX + cutoutRadius * 0.7f,
+                    y2 = 0f,
+                    x3 = cutoutRightX,
+                    y3 = 0f,
             )
             // top right
             if (cutoutRightX < size.width) {
-                val realRightCornerDiameter = if (cutoutRightX <= size.width - cornerRadiusPx) {
-                    cornerDiameter
-                } else {
-                    (size.width - cutoutRightX) * 2
-                }
+                val realRightCornerDiameter =
+                        if (cutoutRightX <= size.width - cornerRadiusPx) {
+                            cornerDiameter
+                        } else {
+                            (size.width - cutoutRightX) * 2
+                        }
                 arcTo(
-                    rect = Rect(
-                        left = size.width - realRightCornerDiameter,
-                        top = 0f,
-                        right = size.width,
-                        bottom = realRightCornerDiameter
-                    ),
-                    startAngleDegrees = -90.0f,
-                    sweepAngleDegrees = 90.0f,
-                    forceMoveTo = false
+                        rect =
+                                Rect(
+                                        left = size.width - realRightCornerDiameter,
+                                        top = 0f,
+                                        right = size.width,
+                                        bottom = realRightCornerDiameter
+                                ),
+                        startAngleDegrees = -90.0f,
+                        sweepAngleDegrees = 90.0f,
+                        forceMoveTo = false
                 )
             }
             // bottom right
@@ -289,25 +294,26 @@ private class BarShape(
 // Circle composable (همون کد قبلی)
 @Composable
 private fun Circle(
-    modifier: Modifier = Modifier,
-    color: Color = Color.White,
-    radius: Dp,
-    button: ButtonData,
-    iconColor: Color,
+        modifier: Modifier = Modifier,
+        color: Color = Color.White,
+        radius: Dp,
+        button: ButtonData,
+        iconColor: Color,
 ) {
     Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .size(radius * 2)
-            .clip(CircleShape)
-            .background(color)
-        ,
+            contentAlignment = Alignment.Center,
+            modifier = modifier.size(radius * 2).clip(CircleShape).background(color),
     ) {
         AnimatedContent(
-            targetState = button.icon,
-            label = "Bottom bar circle icon",
+                targetState = button.icon,
+                label = "Bottom bar circle icon",
         ) { targetIcon ->
-            Icon(painter = painterResource(targetIcon), "", tint = iconColor,modifier = Modifier.size(33.dp) )// سایز آیکن دایره رو هم تنظیم کن)
+            Icon(
+                    painter = painterResource(targetIcon),
+                    contentDescription = "",
+                    tint = iconColor,
+                    modifier = Modifier.size(33.dp)
+            )
         }
     }
 }
